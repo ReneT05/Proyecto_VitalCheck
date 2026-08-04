@@ -1,83 +1,54 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
-    <meta charset="utf-8">
-
-<meta http-equiv="Content-Security-Policy"
-content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval';
-connect-src 'self' https://elrjtd.online;
-style-src 'self' 'unsafe-inline';
-media-src *;">    <meta name="format-detection" content="telephone=no">
-    <meta name="msapplication-tap-highlight" content="no">
-    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
-
-    <link rel="stylesheet" href="css/escaner.css">
-
-    <title>Escáner</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <title>Vitalcheck - Ayuda</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/historial.css">
 </head>
 
 <body>
-
-    <main class="modulo-escaner">
-
-        <section class="panel-control">
-            <h3>Módulo de Captura</h3>
-
-            <div class="acciones-panel">
-                <a href="form.html" class="btn-secundario">Añadir producto</a>
-            </div>
-
-
-             <div id="container">
-                <div id="barkoderView"></div>
-                <div class="btnContainer">
-                    <button id="startScanBtn" class="actionButton" disabled>Start Scanning</button>
-                    <button id="stopScanBtn" class="actionButton" disabled>Stop Scanning</button>
+    <nav class="pos-nav">
+        <div class="nav-container">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i class="fas fa-circle-info"></i>
                 </div>
-                <div id="resultContainer" class="resultContainer" style="display:none;">
-                    <p>Result: <a id="resultText"></a></p>
-                    <p>Type: <span id="resultType"></span></p>
-                    <img id="resultImage" class="resultImage" alt="Scanned Thumbnail" />
-                </div>
+                <div class="logo-text">Vitalcheck</div>
             </div>
-        </section>
+            <a href="inicio.html" class="nav-btn"><i class="fas fa-home"></i> Inicio</a>
+        </div>
+    </nav>
 
-        <section class="seccion-crud">
+    <main class="app-shell">
+        <div class="page-header">
+            <span class="page-label">Ayuda</span>
+            <h1>Cómo usar Vitalcheck</h1>
+            <p>Registra y revisa tus mediciones desde la aplicación.</p>
+        </div>
 
-            <div class="formulario-mock">
-                <h4>Captura manual</h4>
-
-                <div class="grupo-input">
-                    <input type="text" id="input-codigo-manual" placeholder="Código de barras manual">
-                    <button id="btnGuardar">Guardar</button>
-                </div>
-
-                <p id="mensaje-sistema" class="mensaje-sistema"></p>
+        <div class="container">
+            <div class="summary-card">
+                <h4>Registrar medición</h4>
+                <p>Selecciona el tipo de medición y completa los datos en la pantalla de registro. Guarda la medición para almacenarla en tu historial.</p>
             </div>
-
-            <div class="historial-escaneos">
-                <h4>imagen</h4>
-                  <img src="img/escanerIMG.jpg" alt="Imagen del escáner">
-                <ul id="lista-codigos" class="lista-datos"></ul>
+            <div class="summary-card mt-3">
+                <h4>Historial</h4>
+                <p>Busca por tipo de medición, estado o fecha para encontrar registros anteriores. El historial muestra tus lecturas de glucosa y presión arterial.</p>
             </div>
-
-        </section>
-
-        
-
-
-            <script src="cordova.js"></script>
-            <script src="js/config.js"></script>
-            <script src="js/escaner.js"></script>
-
-            <a href="ventas.html" class="btn-secundario">Volver al menú</a>
+            <div class="summary-card mt-3">
+                <h4>Tendencias</h4>
+                <p>Consulta los promedios recientes y las últimas mediciones para ver cómo evolucionan tus valores.</p>
+            </div>
+            <div class="summary-card mt-3">
+                <h4>Base de datos Vitalcheck</h4>
+                <p>Los registros se almacenan en las tablas <strong>glucosa</strong> y <strong>presion_arterial</strong> de tu base de datos Vitalcheck.</p>
+            </div>
+        </div>
+    </main>
 </body>
-</section>
-</main>
-<br>
-
-
-
 
 </html>

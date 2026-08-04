@@ -1,27 +1,24 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Sistema de Ventas - Registro</title>
+    <title>Vitalcheck - Registrar medición</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/form.css">
+    <link rel="stylesheet" href="css/registro.css">
 </head>
 
 <body>
-
     <nav class="pos-nav">
         <div class="nav-container">
             <div class="logo-area">
                 <div class="logo-icon">
-                    <i class="fas fa-cash-register"></i>
+                    <i class="fas fa-heart-pulse"></i>
                 </div>
-                <div class="logo-text">
-                    Sistema de Ventas
-                </div>
+                <div class="logo-text">Vitalcheck</div>
             </div>
-          
+            <a href="inicio.html" class="nav-btn"><i class="fas fa-home"></i> Inicio</a>
         </div>
     </nav>
 
@@ -29,48 +26,68 @@
         <div class="card">
             <div class="card-header">
                 <div class="brand-icon-wrapper">
-                    <i class="fas fa-boxes"></i>
+                    <i class="fas fa-notes-medical"></i>
                 </div>
-                <h1>Registrar Producto</h1>
-                <p>Introduce los datos para actualizar el inventario global.</p>
+                <h1>Registrar medición</h1>
+                <p>Guarda una medición de glucosa o presión arterial con observaciones.</p>
             </div>
-            
+
             <div id="formMessage" class="form-message" aria-live="polite"></div>
-            
-            <form id="product-form" action="" method="post">
+
+            <form id="measurement-form" action="" method="post">
                 <div class="mb-3">
-                    <label for="codeqr" class="form-label"><i class="fas fa-qrcode me-1"></i> Código</label>
-                    <input type="number" class="form-control" name="codeqr" id="codeqr" placeholder="xxxxxxxxxx" />
+                    <label for="measurementType" class="form-label"><i class="fas fa-layer-group me-1"></i> Tipo de medición</label>
+                    <select id="measurementType" class="form-control">
+                        <option value="glucosa">Glucosa</option>
+                        <option value="presion">Presión arterial</option>
+                    </select>
                 </div>
+
+                <div id="glucosaSection">
+                    <div class="mb-3">
+                        <label for="nivel_glucosa" class="form-label"><i class="fas fa-droplet"></i> Nivel de glucosa</label>
+                        <input type="number" class="form-control" id="nivel_glucosa" placeholder="mg/dL" min="1" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="momento" class="form-label"><i class="fas fa-clock"></i> Momento</label>
+                        <select id="momento" class="form-control">
+                            <option>Ayunas</option>
+                            <option>Antes de comer</option>
+                            <option>Después de comer</option>
+                            <option>Antes de dormir</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="presionSection" style="display:none;">
+                    <div class="mb-3">
+                        <label for="sistolica" class="form-label"><i class="fas fa-tachometer-alt"></i> Sistólica</label>
+                        <input type="number" class="form-control" id="sistolica" placeholder="mmHg" min="1" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="diastolica" class="form-label"><i class="fas fa-wave-square"></i> Diastólica</label>
+                        <input type="number" class="form-control" id="diastolica" placeholder="mmHg" min="1" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="pulso" class="form-label"><i class="fas fa-heartbeat"></i> Pulso</label>
+                        <input type="number" class="form-control" id="pulso" placeholder="latidos por minuto" min="1" />
+                    </div>
+                </div>
+
                 <div class="mb-3">
-                    <label for="name" class="form-label"><i class="fas fa-tag me-1"></i> Nombre</label>
-                    <input type="text" class="form-control" name="name" id="name" placeholder="Ej. Refresco de Cola" />
+                    <label for="observaciones" class="form-label"><i class="fas fa-clipboard-list"></i> Observaciones</label>
+                    <textarea id="observaciones" class="form-control" rows="3" placeholder="Opcional"></textarea>
                 </div>
-                <div class="mb-3">
-                    <label for="description" class="form-label"><i class="fas fa-align-left me-1"></i> Descripción</label>
-                    <input type="text" class="form-control" name="description" id="description" placeholder="Detalles del producto" />
-                </div>
-                <div class="mb-3">
-                    <label for="price" class="form-label"><i class="fas fa-dollar-sign me-1"></i> Precio</label>
-                    <input type="number" class="form-control" name="price" id="price" placeholder="0.00" step="0.01" />
-                </div>
-                <div class="mb-3">
-                    <label for="quantity" class="form-label"><i class="fas fa-layer-group me-1"></i> Cantidad</label>
-                    <input type="number" class="form-control" name="quantity" id="quantity" placeholder="0" />
-                </div>
+
                 <div class="form-actions">
-                    <button type="button" id="vlvr" name="vlvr" class="btn-secundario">
-                        <i class="fas fa-arrow-left"></i> Volver
-                    </button>
-                    <button type="submit" id="submitButton" class="btn-primary-action">
-                        <i class="fas fa-save"></i> Guardar Producto
-                    </button>
+                    <a href="inicio.html" class="btn-secundario"><i class="fas fa-arrow-left"></i> Volver</a>
+                    <button type="submit" id="submitButton" class="btn-primary-action"><i class="fas fa-save"></i> Guardar medición</button>
                 </div>
             </form>
         </div>
     </main>
 
-    <script src="js/form.js"></script>
+    <script src="js/registro.js"></script>
 </body>
 
 </html>

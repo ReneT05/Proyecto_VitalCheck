@@ -1,54 +1,32 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="utf-8">
-
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; connect-src 'self' https://dictionaries-measurement-powers-lisa.trycloudflare.com; style-src 'self' 'unsafe-inline'; media-src *;">
-
-    <meta name="format-detection" content="telephone=no">
-    <meta name="msapplication-tap-highlight" content="no">
     <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
     <meta name="color-scheme" content="light dark">
-
-    <link rel="stylesheet" href="css/escaner.css">
-
-    <title>Menú Principal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/historial.css">
+    <title>Vitalcheck - Inicio</title>
 </head>
 
 <body>
+    <main class="app-shell">
+        <div class="page-header">
+            <span class="page-label">Vitalcheck</span>
+            <h1>Bienvenido a Vitalcheck</h1>
+            <p>Registra y consulta tus mediciones de glucosa y presión arterial.</p>
+        </div>
 
-    <main class="modulo-escaner">
-
-        <section class="panel-control">
-            <h3>Menú Principal</h3>
-        </section>
-        <section class="seccion-menu">
-
-            <a href="form.html" class="btn-primario boton-menu">
-                formulario
-            </a>
-
-            <a href="Inventario.html" class="btn-primario boton-menu">
-                Inventario
-            </a>
-
-            <a href="escaner.html" class="btn-primario boton-menu">
-                Escáner
-            </a>
-
-            <a href="ventas.html" class="btn-primario boton-menu">
-                compra y venta
-            </a>
-
-        </section>
-
+        <div class="container">
+            <div class="summary-card" style="text-align:center; padding:2rem;">
+                <a href="registro.html" class="btn btn-primary" style="width:100%; margin-bottom:1rem;">Registrar medición</a>
+                <a href="historial.html" class="btn btn-secondary" style="width:100%; margin-bottom:1rem;">Historial</a>
+                <a href="tendencias.html" class="btn btn-secondary" style="width:100%; margin-bottom:1rem;">Tendencias</a>
+                <a href="ayuda.html" class="btn btn-secondary" style="width:100%;">Ayuda</a>
+            </div>
+        </div>
     </main>
-
-    <script src="cordova.js"></script>
-    <script src="js/index.js"></script>
-
 </body>
 
 </html>

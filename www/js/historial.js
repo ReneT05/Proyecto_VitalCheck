@@ -1,144 +1,109 @@
-document.addEventListener('DOMContentLoaded', function () {
+﻿document.addEventListener('DOMContentLoaded', function () {
     const tableBody = document.getElementById('inventory-body');
     const totalCount = document.getElementById('total-count');
-    const updatedAt = document.getElementById('updated-at');
-    const inventorySearchInput = document.getElementById('inventorySearchInput');
+    const searchInput = document.getElementById('inventorySearchInput');
+    const API_GLUCOSE = 'api/glucosa.php';
+    const API_PRESSURE = 'api/presion.php';
+    const DEFAULT_USER_ID = 1;
 
-    let productosOriginales = [];
+    let entries = [];
 
-    if (!tableBody || !totalCount) {
-        return;
+    function formatDate(value) {
+        const date = new Date(value);
+        return isNaN(date.getTime()) ? value : date.toLocaleString('es-MX', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     }
 
-    // Endpoint relativo a la API
-    const API_URL = 'https://elrjtd.online/DDI/API/productos.php';
-
-    function formatearPrecio(valor) {
-        return `$${Number(valor).toFixed(2)}`;
-    }
-
-    function actualizarFecha() {
-        if (!updatedAt) return;
-        const ahora = new Date();
-        updatedAt.textContent = ahora.toLocaleDateString('es-MX', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-        });
-    }
-
-    function renderizarTabla(productos) {
-        totalCount.textContent = productos.length;
-        tableBody.innerHTML = '';
-
-        if (productos.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="6">No hay productos disponibles.</td></tr>';
+    function renderTable(items) {
+        if (!tableBody) return;
+        totalCount.textContent = items.length;
+        if (items.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="5">No hay registros disponibles.</td></tr>';
             return;
         }
 
         const fragment = document.createDocumentFragment();
-        productos.forEach(producto => {
+        items.forEach(item => {
             const tr = document.createElement('tr');
-            tr.dataset.id = producto.id;
             tr.innerHTML = `
-                <td>${producto.id || '-'}</td>
-                <td>${producto.nombre || '-'}</td>
-                <td>${producto.descripcion || '-'}</td>
-                <td>${producto.cantidad || 0}</td>
-                <td>${formatearPrecio(producto.precio || 0)}</td>
-                <td>
-                    <a href="form.html?id=${producto.id}&modeEdit=${producto.id}" class="action-btn edit-btn">Editar</a>
-                    <br>
-                </td>
+                <td>${item.type}</td>
+                <td>${item.value}</td>
+                <td>${item.estado}</td>
+                <td>${item.observaciones || '-'}</td>
+                <td>${formatDate(item.fecha)}</td>
             `;
             fragment.appendChild(tr);
         });
 
+        tableBody.innerHTML = '';
         tableBody.appendChild(fragment);
-        actualizarFecha();
     }
 
-    // Manejar clic en botón eliminar (delegación)
-    tableBody.addEventListener('click', function (e) {
-        const btn = e.target.closest('.delete-btn');
-        if (!btn) return;
+    function filterEntries(term) {
+        const lower = term.toLowerCase();
+        return entries.filter(item =>
+            item.type.toLowerCase().includes(lower) ||
+            item.estado.toLowerCase().includes(lower) ||
+            (item.observaciones && item.observaciones.toLowerCase().includes(lower)) ||
+            item.value.toLowerCase().includes(lower) ||
+            formatDate(item.fecha).toLowerCase().includes(lower)
+        );
+    }
 
-        const id = btn.getAttribute('data-id');
-        if (!id) return;
+    async function fetchMeasurements(url) {
+        const response = await fetch(`${url}?user_id=${DEFAULT_USER_ID}`);
+        if (!response.ok) {
+            throw new Error(`Error HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        if (!data.success) {
+            throw new Error(data.error || 'Error en la respuesta de la API');
+        }
+        return data.data || [];
+    }
 
-        if (!confirm('¿Eliminar este producto? Esta acción no se puede deshacer.')) return;
+    async function loadHistorial() {
+        if (tableBody) {
+            tableBody.innerHTML = '<tr><td colspan="5">Cargando historial...</td></tr>';
+        }
+        try {
+            const [glucosaData, presionData] = await Promise.all([
+                fetchMeasurements(API_GLUCOSE),
+                fetchMeasurements(API_PRESSURE)
+            ]);
 
-        // Buscar la fila correspondiente
-        const tr = btn.closest('tr');
-        eliminarProducto(id, tr);
-    });
+            const glucosaEntries = glucosaData.map(item => ({
+                type: 'Glucosa',
+                value: `${item.nivel_glucosa} mg/dL (${item.momento})`,
+                estado: item.estado || '-',
+                observaciones: item.observaciones,
+                fecha: item.fecha_registro || item.fecha
+            }));
 
-    function eliminarProducto(id, tr) {
-        const url = `${API_URL}?id=${encodeURIComponent(id)}`;
+            const presionEntries = presionData.map(item => ({
+                type: 'Presión arterial',
+                value: `${item.sistolica}/${item.diastolica} mmHg • pulso ${item.pulso}`,
+                estado: item.estado || '-',
+                observaciones: item.observaciones,
+                fecha: item.fecha_registro || item.fecha
+            }));
 
-        fetch(url, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
+            entries = [...glucosaEntries, ...presionEntries].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            renderTable(entries);
+        } catch (error) {
+            console.error('Error cargando historial:', error);
+            if (tableBody) {
+                tableBody.innerHTML = `<tr><td colspan="5">Error: ${error.message}</td></tr>`;
             }
-        })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return response.json();
-            })
-            .then(json => {
-                if (json.success) {
-                    // Remover la fila y actualizar contador
-                    if (tr && tr.parentNode) tr.parentNode.removeChild(tr);
-                    const nuevoTotal = Math.max(0, Number(totalCount.textContent || 0) - 1);
-                    totalCount.textContent = nuevoTotal;
-                    actualizarFecha();
-                } else {
-                    throw new Error(json.error || 'No se pudo eliminar el producto');
-                }
-            })
-            .catch(err => {
-                console.error('Error eliminando producto:', err);
-                alert('No se pudo eliminar el producto: ' + (err.message || err));
-            });
+            totalCount.textContent = '0';
+        }
     }
 
-    function cargarProductos() {
-        tableBody.innerHTML = '<tr><td colspan="6">Cargando productos...</td></tr>';
-        
-        fetch(API_URL)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Error HTTP ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success && Array.isArray(data.data)) {
-                    productosOriginales = data.data;
-                    renderizarTabla(productosOriginales);
-                } else {
-                    throw new Error('Formato de respuesta inválido desde la API');
-                }
-            })
-            .catch(error => {
-                console.error('Error cargando productos:', error);
-                tableBody.innerHTML = `<tr><td colspan="6">Error: ${error.message}</td></tr>`;
-            });
-    }
-
-    if (inventorySearchInput) {
-        inventorySearchInput.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const filtrados = productosOriginales.filter(p =>
-                (p.nombre && p.nombre.toLowerCase().includes(term)) ||
-                (p.descripcion && p.descripcion.toLowerCase().includes(term)) ||
-                (p.id && String(p.id).includes(term))
-            );
-            renderizarTabla(filtrados);
+    if (searchInput) {
+        searchInput.addEventListener('input', function (event) {
+            const term = event.target.value.trim();
+            renderTable(term ? filterEntries(term) : entries);
         });
     }
 
-    // Cargar productos al iniciar
-    cargarProductos();
+    loadHistorial();
 });

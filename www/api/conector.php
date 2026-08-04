@@ -14,7 +14,7 @@ function getConexion(array $opts = null)
         $opts = [
             'tipo' => 'mysql',
             'servidor' => 'localhost',
-            'bd' => 'prueba',
+            'bd' => 'vitalcheck',
             'usuario' => 'root',
             'contrasena' => ''
         ];
