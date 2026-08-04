@@ -1,72 +1,158 @@
--- ============================================
--- BASE DE DATOS VITALCHECK
--- ============================================
+-- ==========================================
+-- BASE DE DATOS: VITALCHECK
+-- ==========================================
 
-CREATE DATABASE IF NOT EXISTS `vitalcheck`
-CHARACTER SET utf8mb4
-COLLATE utf8mb4_general_ci;
+CREATE DATABASE IF NOT EXISTS vitalcheck;
+USE vitalcheck;
 
-USE `vitalcheck`;
-
--- ============================================
+-- ==========================================
 -- TABLA DE USUARIOS
--- ============================================
+-- ==========================================
 
-CREATE TABLE IF NOT EXISTS `usuarios` (
+CREATE TABLE usuarios (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    usuario VARCHAR(50) NOT NULL UNIQUE,
+    correo VARCHAR(100),
+    contrasena VARCHAR(255) NOT NULL,
+    pin VARCHAR(10),
+    fecha_nacimiento DATE,
+    sexo ENUM('Masculino','Femenino','Otro'),
+    telefono VARCHAR(15),
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-    `id_usuario` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+-- ==========================================
+-- TABLA DE MÉDICOS
+-- ==========================================
 
-    `usuario` VARCHAR(100) NOT NULL UNIQUE,
+CREATE TABLE medicos (
+    id_medico INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(150) NOT NULL,
+    especialidad VARCHAR(100),
+    telefono VARCHAR(15),
+    correo VARCHAR(100)
+);
 
-    `contrasena` VARCHAR(255) NOT NULL,
+-- ==========================================
+-- TABLA DE GLUCOSA
+-- ==========================================
 
-    `nombre_completo` VARCHAR(255),
+CREATE TABLE glucosa (
+    id_glucosa INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    nivel_glucosa INT NOT NULL,
+    momento ENUM(
+        'Ayunas',
+        'Antes de comer',
+        'Después de comer',
+        'Antes de dormir'
+    ),
+    estado ENUM(
+        'Normal',
+        'Elevado',
+        'Critico'
+    ),
+    observaciones TEXT,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    `pin` VARCHAR(10),
-
-    `fecha_registro` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-
-    PRIMARY KEY (`id_usuario`)
-
-) ENGINE=InnoDB
-DEFAULT CHARSET=utf8mb4
-COLLATE=utf8mb4_general_ci;
-
--- Usuario administrador
-
-INSERT INTO `usuarios`
-(`usuario`,`contrasena`,`nombre_completo`,`pin`)
-VALUES
-('admin','admin123','Administrador Principal','1234');
-
--- ============================================
--- TABLA DE REGISTROS DE SIGNOS VITALES
--- ============================================
-
-CREATE TABLE IF NOT EXISTS `registros_vitales` (
-
-    `id_registro` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-
-    `id_usuario` INT UNSIGNED NOT NULL,
-
-    `tipo_registro` VARCHAR(50) NOT NULL,
-
-    `descripcion` VARCHAR(100) NOT NULL,
-
-    `valor` DECIMAL(10,2) NOT NULL,
-
-    `fecha_registro` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-
-    PRIMARY KEY (`id_registro`),
-
-    INDEX `idx_usuario` (`id_usuario`),
-
-    CONSTRAINT `fk_usuario_registro`
-        FOREIGN KEY (`id_usuario`)
-        REFERENCES `usuarios`(`id_usuario`)
+    FOREIGN KEY(id_usuario)
+        REFERENCES usuarios(id_usuario)
         ON DELETE CASCADE
+);
 
-) ENGINE=InnoDB
-DEFAULT CHARSET=utf8mb4
-COLLATE=utf8mb4_general_ci;d`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- ==========================================
+-- TABLA DE PRESIÓN ARTERIAL
+-- ==========================================
+
+CREATE TABLE presion_arterial (
+    id_presion INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    sistolica INT NOT NULL,
+    diastolica INT NOT NULL,
+    pulso INT NOT NULL,
+    estado ENUM(
+        'Normal',
+        'Elevado',
+        'Critico'
+    ),
+    observaciones TEXT,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY(id_usuario)
+        REFERENCES usuarios(id_usuario)
+        ON DELETE CASCADE
+);
+
+-- ==========================================
+-- TABLA DE ALERTAS
+-- ==========================================
+
+CREATE TABLE alertas (
+    id_alerta INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    tipo VARCHAR(50),
+    mensaje VARCHAR(255),
+    nivel ENUM(
+        'Verde',
+        'Amarillo',
+        'Rojo'
+    ),
+    leida BOOLEAN DEFAULT FALSE,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY(id_usuario)
+        REFERENCES usuarios(id_usuario)
+        ON DELETE CASCADE
+);
+
+-- ==========================================
+-- TABLA DE REPORTES
+-- ==========================================
+
+CREATE TABLE reportes (
+    id_reporte INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    formato ENUM('PDF') DEFAULT 'PDF',
+    archivo VARCHAR(255),
+    fecha_generacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY(id_usuario)
+        REFERENCES usuarios(id_usuario)
+        ON DELETE CASCADE
+);
+
+-- ==========================================
+-- DATOS DE PRUEBA
+-- ==========================================
+
+INSERT INTO usuarios
+(nombre, apellido, usuario, correo, contrasena, pin, telefono)
+VALUES
+('René', 'Treviño', 'admin', 'admin@vitalcheck.com', 'admin123', '1234', '8661234567');
+
+INSERT INTO medicos
+(nombre, especialidad, telefono, correo)
+VALUES
+('Carlos Martínez', 'Cardiólogo', '8669876543', 'carlos@hospital.com');
+
+INSERT INTO glucosa
+(id_usuario, nivel_glucosa, momento, estado)
+VALUES
+(1, 95, 'Ayunas', 'Normal');
+
+INSERT INTO glucosa
+(id_usuario, nivel_glucosa, momento, estado)
+VALUES
+(1, 145, 'Después de comer', 'Elevado');
+
+INSERT INTO presion_arterial
+(id_usuario, sistolica, diastolica, pulso, estado)
+VALUES
+(1, 120, 80, 72, 'Normal');
+
+INSERT INTO presion_arterial
+(id_usuario, sistolica, diastolica, pulso, estado)
+VALUES
+(1, 145, 95, 90, 'Critico');

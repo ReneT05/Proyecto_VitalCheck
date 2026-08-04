@@ -1,46 +1,46 @@
 <?php
 require_once __DIR__ . '/conector.php';
-require_once __DIR__ . '/jwt.php';
+// JWT removed — API uses explicit user_id parameter for identifying the user
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 
-$secretKey = 'ViatlcheckJWTSecret';
-$token = getBearerToken();
-
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
 }
 
-if (!verifyJwt($token, $secretKey)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'error' => 'No autorizado']);
-    exit;
-}
 
-$payload = decodeJwt($token);
-$userId = $payload['uid'] ?? null;
-if (!$userId) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'error' => 'Token inválido']);
-    exit;
-}
-
-function mapVitalRecord(array $row): array
+function mapGlucoseRow(array $row): array
 {
     return [
-        'id_registro' => intval($row['id_registro'] ?? 0),
+        'id_registro' => intval($row['id_glucosa'] ?? 0),
         'id_usuario' => intval($row['id_usuario'] ?? 0),
-        'tipo_registro' => $row['tipo_registro'] ?? '',
-        'descripcion' => $row['descripcion'] ?? '',
-        'valor' => $row['valor'] ?? null,
+        'tipo_registro' => 'Azúcar',
+        'descripcion' => $row['observaciones'] ?? '',
+        'valor' => intval($row['nivel_glucosa'] ?? 0),
         'fecha_registro' => $row['fecha_registro'] ?? null,
-        'title' => $row['tipo_registro'] ?? '',
-        'metric' => $row['descripcion'] ?? '',
-        'value' => $row['valor'] ?? null,
+        'title' => 'Azúcar',
+        'metric' => $row['momento'] ?? '',
+        'value' => intval($row['nivel_glucosa'] ?? 0),
+        'created_at' => $row['fecha_registro'] ?? null
+    ];
+}
+
+function mapPressureRow(array $row): array
+{
+    return [
+        'id_registro' => intval($row['id_presion'] ?? 0),
+        'id_usuario' => intval($row['id_usuario'] ?? 0),
+        'tipo_registro' => 'Presión',
+        'descripcion' => $row['observaciones'] ?? '',
+        'valor' => intval($row['pulso'] ?? 0),
+        'fecha_registro' => $row['fecha_registro'] ?? null,
+        'title' => 'Presión',
+        'metric' => isset($row['sistolica'], $row['diastolica']) ? ($row['sistolica'] . '/' . $row['diastolica']) : '',
+        'value' => intval($row['pulso'] ?? 0),
         'created_at' => $row['fecha_registro'] ?? null
     ];
 }
@@ -57,7 +57,21 @@ $method = $_SERVER['REQUEST_METHOD'];
 $id = isset($_GET['id']) ? intval($_GET['id']) : null;
 $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
 
+// Determine user ID without JWT: accept `user_id` in query or request body
+$userId = null;
+if (isset($_GET['user_id'])) {
+    $userId = intval($_GET['user_id']);
+} elseif (isset($input['user_id'])) {
+    $userId = intval($input['user_id']);
+}
+
+// If no user_id provided (login removed), default to admin user id 1
+if (!$userId) {
+    $userId = 1;
+}
+
 try {
+
     switch ($method) {
         case 'GET':
             $q = isset($_GET['q']) ? trim($_GET['q']) : null;
@@ -65,62 +79,113 @@ try {
             $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
 
             if ($id) {
-                $stmt = $db->prepare('SELECT * FROM registros_vitales WHERE id_registro = :id_registro AND id_usuario = :id_usuario LIMIT 1');
-                $stmt->execute([':id_registro' => $id, ':id_usuario' => $userId]);
+                // Try glucose
+                $stmt = $db->prepare('SELECT * FROM glucosa WHERE id_glucosa = :id AND id_usuario = :id_usuario LIMIT 1');
+                $stmt->execute([':id' => $id, ':id_usuario' => $userId]);
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                if (!$row) {
-                    http_response_code(404);
-                    echo json_encode(['success' => false, 'error' => 'Elemento no encontrado']);
+                if ($row) {
+                    echo json_encode(['success' => true, 'data' => mapGlucoseRow($row)], JSON_UNESCAPED_UNICODE);
                     exit;
                 }
 
-                echo json_encode(['success' => true, 'data' => mapVitalRecord($row)], JSON_UNESCAPED_UNICODE);
+                // Try pressure
+                $stmt = $db->prepare('SELECT * FROM presion_arterial WHERE id_presion = :id AND id_usuario = :id_usuario LIMIT 1');
+                $stmt->execute([':id' => $id, ':id_usuario' => $userId]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($row) {
+                    echo json_encode(['success' => true, 'data' => mapPressureRow($row)], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                http_response_code(404);
+                echo json_encode(['success' => false, 'error' => 'Elemento no encontrado']);
+                exit;
             } else {
-                $sql = 'SELECT * FROM registros_vitales WHERE id_usuario = :id_usuario';
                 $params = [':id_usuario' => $userId];
 
+                $glucoseSql = 'SELECT * FROM glucosa WHERE id_usuario = :id_usuario';
+                $pressureSql = 'SELECT * FROM presion_arterial WHERE id_usuario = :id_usuario';
+
                 if ($q !== null && $q !== '') {
-                    $sql .= ' AND (tipo_registro LIKE :query OR descripcion LIKE :query OR fecha_registro LIKE :query)';
+                    $glucoseSql .= ' AND (momento LIKE :query OR observaciones LIKE :query)';
+                    $pressureSql .= ' AND (observaciones LIKE :query OR sistolica LIKE :query OR diastolica LIKE :query)';
                     $params[':query'] = "%$q%";
                 }
 
-                $sql .= ' ORDER BY fecha_registro DESC';
+                $glucoseSql .= ' ORDER BY fecha_registro DESC LIMIT ' . $limit . ' OFFSET ' . $offset;
+                $pressureSql .= ' ORDER BY fecha_registro DESC LIMIT ' . $limit . ' OFFSET ' . $offset;
 
-                if ($limit > 0) {
-                    $sql .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
-                }
-
-                $stmt = $db->prepare($sql);
+                $stmt = $db->prepare($glucoseSql);
                 $stmt->execute($params);
-                $all = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $glucosaAll = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                $mapped = array_map('mapVitalRecord', $all);
+                $stmt = $db->prepare($pressureSql);
+                $stmt->execute($params);
+                $pressureAll = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                $mapped = [];
+                foreach ($glucosaAll as $r) $mapped[] = mapGlucoseRow($r);
+                foreach ($pressureAll as $r) $mapped[] = mapPressureRow($r);
+
+                // Sort by created_at desc
+                usort($mapped, function ($a, $b) {
+                    return strtotime($b['created_at']) <=> strtotime($a['created_at']);
+                });
+
                 echo json_encode(['success' => true, 'data' => $mapped], JSON_UNESCAPED_UNICODE);
             }
             break;
 
         case 'POST':
             $tipoRegistro = isset($input['tipo_registro']) ? trim($input['tipo_registro']) : (isset($input['title']) ? trim($input['title']) : '');
-            $descripcion = isset($input['descripcion']) ? trim($input['descripcion']) : (isset($input['metric']) ? trim($input['metric']) : '');
+            $metric = isset($input['metric']) ? trim($input['metric']) : (isset($input['descripcion']) ? trim($input['descripcion']) : '');
             $valor = isset($input['valor']) ? $input['valor'] : (isset($input['value']) ? $input['value'] : null);
 
-            if ($tipoRegistro === '' || $descripcion === '' || $valor === null || $valor === '') {
+            if ($tipoRegistro === '' || $valor === null || $valor === '') {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'error' => 'Faltan campos obligatorios']);
                 exit;
             }
 
-            $stmt = $db->prepare('INSERT INTO registros_vitales (id_usuario, tipo_registro, descripcion, valor, fecha_registro) VALUES (:id_usuario, :tipo_registro, :descripcion, :valor, :fecha_registro)');
-            $stmt->execute([
-                ':id_usuario' => $userId,
-                ':tipo_registro' => $tipoRegistro,
-                ':descripcion' => $descripcion,
-                ':valor' => $valor,
-                ':fecha_registro' => date('Y-m-d H:i:s')
-            ]);
+            if (mb_strtolower($tipoRegistro) === 'azúcar' || mb_strtolower($tipoRegistro) === 'azucar') {
+                $momento = $metric ?: 'Ayunas';
+                $stmt = $db->prepare('INSERT INTO glucosa (id_usuario, nivel_glucosa, momento, estado, observaciones, fecha_registro) VALUES (:id_usuario, :nivel_glucosa, :momento, :estado, :observaciones, :fecha_registro)');
+                $stmt->execute([
+                    ':id_usuario' => $userId,
+                    ':nivel_glucosa' => intval($valor),
+                    ':momento' => $momento,
+                    ':estado' => 'Normal',
+                    ':observaciones' => '',
+                    ':fecha_registro' => date('Y-m-d H:i:s')
+                ]);
+                echo json_encode(['success' => true, 'message' => 'Dato de glucosa creado'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
 
-            echo json_encode(['success' => true, 'message' => 'Dato creado'], JSON_UNESCAPED_UNICODE);
+            if (mb_strtolower($tipoRegistro) === 'presión' || mb_strtolower($tipoRegistro) === 'presion') {
+                // metric expected as 'systolic/diastolic'
+                $systolic = 0;
+                $diastolic = 0;
+                if (strpos($metric, '/') !== false) {
+                    [$systolic, $diastolic] = array_map('intval', explode('/', $metric));
+                }
+                $pulse = intval($valor);
+                $stmt = $db->prepare('INSERT INTO presion_arterial (id_usuario, sistolica, diastolica, pulso, estado, observaciones, fecha_registro) VALUES (:id_usuario, :sistolica, :diastolica, :pulso, :estado, :observaciones, :fecha_registro)');
+                $stmt->execute([
+                    ':id_usuario' => $userId,
+                    ':sistolica' => $systolic,
+                    ':diastolica' => $diastolic,
+                    ':pulso' => $pulse,
+                    ':estado' => 'Normal',
+                    ':observaciones' => '',
+                    ':fecha_registro' => date('Y-m-d H:i:s')
+                ]);
+                echo json_encode(['success' => true, 'message' => 'Dato de presión creado'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Tipo de registro no soportado'], JSON_UNESCAPED_UNICODE);
             break;
 
         case 'PUT':
@@ -130,38 +195,54 @@ try {
                 exit;
             }
 
+            // Try update glucose
             $updates = [];
-            $params = [':id_registro' => $id, ':id_usuario' => $userId];
-
-            if (array_key_exists('tipo_registro', $input) || array_key_exists('title', $input)) {
-                $value = isset($input['tipo_registro']) ? trim($input['tipo_registro']) : trim($input['title']);
-                $updates[] = 'tipo_registro = :tipo_registro';
-                $params[':tipo_registro'] = $value;
+            $params = [];
+            if (array_key_exists('metric', $input) || array_key_exists('momento', $input)) {
+                $updates[] = 'momento = :momento';
+                $params[':momento'] = $input['metric'] ?? $input['momento'];
             }
-
-            if (array_key_exists('descripcion', $input) || array_key_exists('metric', $input)) {
-                $value = isset($input['descripcion']) ? trim($input['descripcion']) : trim($input['metric']);
-                $updates[] = 'descripcion = :descripcion';
-                $params[':descripcion'] = $value;
+            if (array_key_exists('value', $input) || array_key_exists('nivel_glucosa', $input)) {
+                $updates[] = 'nivel_glucosa = :nivel_glucosa';
+                $params[':nivel_glucosa'] = intval($input['value'] ?? $input['nivel_glucosa']);
             }
-
-            if (array_key_exists('valor', $input) || array_key_exists('value', $input)) {
-                $value = isset($input['valor']) ? $input['valor'] : $input['value'];
-                $updates[] = 'valor = :valor';
-                $params[':valor'] = $value;
-            }
-
-            if (empty($updates)) {
-                http_response_code(400);
-                echo json_encode(['success' => false, 'error' => 'No hay campos para actualizar']);
+            if ($updates) {
+                $sql = 'UPDATE glucosa SET ' . implode(', ', $updates) . ' WHERE id_glucosa = :id_glucosa AND id_usuario = :id_usuario';
+                $params[':id_glucosa'] = $id;
+                $params[':id_usuario'] = $userId;
+                $stmt = $db->prepare($sql);
+                $stmt->execute($params);
+                echo json_encode(['success' => true, 'message' => 'Dato actualizado'], JSON_UNESCAPED_UNICODE);
                 exit;
             }
 
-            $sql = 'UPDATE registros_vitales SET ' . implode(', ', $updates) . ' WHERE id_registro = :id_registro AND id_usuario = :id_usuario';
-            $stmt = $db->prepare($sql);
-            $stmt->execute($params);
+            // Try update pressure
+            $updates = [];
+            $params = [];
+            if (array_key_exists('metric', $input) && strpos($input['metric'], '/') !== false) {
+                [$s, $d] = array_map('intval', explode('/', $input['metric']));
+                $updates[] = 'sistolica = :sistolica';
+                $updates[] = 'diastolica = :diastolica';
+                $params[':sistolica'] = $s;
+                $params[':diastolica'] = $d;
+            }
+            if (array_key_exists('value', $input) || array_key_exists('pulso', $input)) {
+                $updates[] = 'pulso = :pulso';
+                $params[':pulso'] = intval($input['value'] ?? $input['pulso']);
+            }
+            if ($updates) {
+                $sql = 'UPDATE presion_arterial SET ' . implode(', ', $updates) . ' WHERE id_presion = :id_presion AND id_usuario = :id_usuario';
+                $params[':id_presion'] = $id;
+                $params[':id_usuario'] = $userId;
+                $stmt = $db->prepare($sql);
+                $stmt->execute($params);
+                echo json_encode(['success' => true, 'message' => 'Dato actualizado'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
 
-            echo json_encode(['success' => true, 'message' => 'Dato actualizado'], JSON_UNESCAPED_UNICODE);
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'No hay campos para actualizar']);
+            exit;
             break;
 
         case 'DELETE':
@@ -171,10 +252,24 @@ try {
                 exit;
             }
 
-            $stmt = $db->prepare('DELETE FROM registros_vitales WHERE id_registro = :id_registro AND id_usuario = :id_usuario');
-            $stmt->execute([':id_registro' => $id, ':id_usuario' => $userId]);
+            // Try delete from glucose
+            $stmt = $db->prepare('DELETE FROM glucosa WHERE id_glucosa = :id AND id_usuario = :id_usuario');
+            $stmt->execute([':id' => $id, ':id_usuario' => $userId]);
+            if ($stmt->rowCount() > 0) {
+                echo json_encode(['success' => true, 'message' => 'Registro eliminado'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
 
-            echo json_encode(['success' => true, 'message' => 'Dato eliminado'], JSON_UNESCAPED_UNICODE);
+            // Try delete from pressure
+            $stmt = $db->prepare('DELETE FROM presion_arterial WHERE id_presion = :id AND id_usuario = :id_usuario');
+            $stmt->execute([':id' => $id, ':id_usuario' => $userId]);
+            if ($stmt->rowCount() > 0) {
+                echo json_encode(['success' => true, 'message' => 'Registro eliminado'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
+            http_response_code(404);
+            echo json_encode(['success' => false, 'error' => 'Elemento no encontrado']);
             break;
 
         default:

@@ -46,7 +46,8 @@ function attachLogout() {
     if (!logoutButton) return;
     logoutButton.addEventListener('click', () => {
         clearAppToken();
-        window.location.href = 'login.html';
+        // Login removed — recargar la página en lugar de redirigir a login
+        window.location.reload();
     });
 }
 
