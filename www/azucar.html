@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Viatlcheck - Registrar azúcar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/registro.css">
+</head>
+
+<body>
+    <main class="page-shell">
+        <header class="page-header compact">
+            <a class="back-link" href="inicio.html"><i class="fas fa-arrow-left"></i> Inicio</a>
+            <div>
+                <span class="brand-pill secondary">Azúcar</span>
+                <h1>Registrar nivel de glucosa</h1>
+                <p>Registro seguro protegido con tu sesión.</p>
+            </div>
+        </header>
+
+        <section class="form-card">
+            <div class="status-banner green" id="statusBanner">
+                <div>
+                    <strong id="statusTitle">Listo para guardar</strong>
+                    <p id="statusText">Ingresa tu valor de glucosa y elige el momento.</p>
+                </div>
+                <div class="status-icon"><i class="fas fa-droplet"></i></div>
+            </div>
+
+            <form id="sugarForm">
+                <div class="field-group">
+                    <label class="field-label" for="glucoseValue">Glucosa en sangre (mg/dL)</label>
+                    <input id="glucoseValue" type="number" min="20" max="500" inputmode="numeric" placeholder="Ej. 98" class="field-input" required>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Momento</label>
+                    <div class="radio-row">
+                        <label class="radio-label"><input type="radio" name="meal" value="ayunas" checked> Ayunas</label>
+                        <label class="radio-label"><input type="radio" name="meal" value="despues"> Después de comer</label>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary-action"><i class="fas fa-check-circle"></i> Guardar azúcar</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="summary-block">
+            <div class="section-title"><span>Último registro enviado</span></div>
+            <div id="lastSummary" class="summary-list">Aún no hay datos guardados.</div>
+        </section>
+    </main>
+
+    <script src="cordova.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/vitals.js"></script>
+    <script src="js/azucar.js"></script>
+</body>
+
+</html>

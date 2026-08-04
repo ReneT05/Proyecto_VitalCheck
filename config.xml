@@ -1,13 +1,9 @@
-<?xml version='1.0' encoding='utf-8'?>
-<widget id="com.example.PuntoVenta" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>PuntoVenta</name>
-    <description>
-        A sample Apache Cordova application that responds to the deviceready event.
-    </description>
-    <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
-        Apache Cordova Team
-    </author>
-    <content src="ventas.html" />
+﻿<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.example.vitalcheck" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Viatlcheck</name>
+    <description>Aplicación Viatlcheck para registro exprés de glucosa y presión arterial.</description>
+    <author email="dev@viatlcheck.com" href="https://viatlcheck.example.com">Viatlcheck Team</author>
+    <content src="inicio.html" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
 </widget>

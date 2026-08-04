@@ -1,244 +1,126 @@
-const API_BASE_URL = 'https://elrjtd.online/DDI/API/productos.php';
-let formInitialized = false;
-let currentProductId = null;
+﻿const STORAGE_KEY = 'ViatlcheckRecords';
 
-window.addEventListener('DOMContentLoaded', init);
-document.addEventListener('deviceready', init);
-
-function init() {
-    initForm();
-    document.addEventListener('backbutton', onBackButton, false);
-}
-
-function onBackButton(event) {
-    // Evita el comportamiento por defecto (que suele ser cerrar la app de golpe)
-    event.preventDefault();
-    window.location.href = 'ventas.html';
-}
-
-async function initForm() {
-    if (formInitialized) {
-        return;
-    }
-
-    const form = document.getElementById('product-form');
-    if (!form) {
-        return;
-    }
-
-    formInitialized = true;
-    form.addEventListener('submit', onFormSubmit);
-
-    const codeInput = document.getElementById('codeqr');
-
-    // Capturamos los parámetros que traen el ID consigo
-    const modeAddId = getQueryParam('modeAdd');   // Trae el código escaneado para un producto nuevo
-    const modeEditId = getQueryParam('modeEdit'); // Trae el ID del producto existente a editar
-
-    // CASO 1: Modo Añadir Producto (Viene con el ID/Código escaneado)
-    const vlvr = document.getElementById('vlvr');
-    let redirectRef = 'ventas.html';
-    if (codeInput && modeAddId) {
-        
-        redirectRef= 'escaner.html'
-        codeInput.value = modeAddId;
-        setCodeReadOnly(true);
-        setFormMode('Agregar producto');
-    }
-
-    // CASO 2: Modo Editar Producto (El parámetro modeEdit trae directamente el ID)
-    if (modeEditId) {
-        redirectRef= 'inventario.html'
-        currentProductId = modeEditId; // Asignamos el ID globalmente
-        await loadProductForEdit(modeEditId);
-    }
-     vlvr.addEventListener('click', () => {
-            window.location.href = redirectRef;
-        });
-}
-
-async function onFormSubmit(event) {
-    event.preventDefault();
-    const submitButton = document.getElementById('submitButton');
-    if (submitButton && submitButton.disabled) return; // Evitar envíos dobles
-
-    const producto = getFormData();
-    if (!producto) {
-        showMessage('Por favor completa todos los campos correctamente.', true);
-        return;
-    }
-
-    // Mostrar estado y desactivar botón
-    const originalText = submitButton ? submitButton.textContent : 'Guardar';
-    if (submitButton) {
-        submitButton.disabled = true;
-        submitButton.textContent = currentProductId ? 'Actualizando...' : 'Guardando...';
-    }
-
+function loadRecords() {
     try {
-        const result = currentProductId
-            ? await updateProducto(currentProductId, producto)
-            : await createProducto(producto);
+        const stored = localStorage.getItem(STORAGE_KEY);
+        return stored ? JSON.parse(stored) : [];
+    } catch {
+        return [];
+    }
+}
 
-        if (result && result.success) {
-            const message = currentProductId
-                ? 'Producto actualizado correctamente.'
-                : `Producto guardado correctamente con ID: ${result.id || producto.id}`;
+function saveRecord(record) {
+    const records = loadRecords();
+    records.push(record);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+}
 
-            showMessage(message);
-            if (!currentProductId) {
-                document.getElementById('product-form').reset();
-            }
-        } else {
-            showMessage(result.error || 'No se pudo guardar el producto.', true);
+function evaluateGlucose(value, meal) {
+    const numeric = Number(value);
+    if (meal === 'despues') {
+        if (numeric <= 139) return { status: 'green', title: 'Normal', text: 'Azúcar en rango normal después de comer.' };
+        if (numeric <= 199) return { status: 'yellow', title: 'Elevado', text: 'Nivel de azúcar alto. Revísalo con tu médico.' };
+        return { status: 'red', title: 'Crítico', text: 'Nivel de azúcar muy alto. Busca ayuda pronto.' };
+    }
+    if (numeric < 70) return { status: 'red', title: 'Bajo', text: 'Azúcar demasiado baja. Puede ser peligroso.' };
+    if (numeric <= 99) return { status: 'green', title: 'Normal', text: 'Azúcar en rango saludable en ayunas.' };
+    if (numeric <= 125) return { status: 'yellow', title: 'Elevado', text: 'Ayunas ligeramente alto. Observa tu médico.' };
+    return { status: 'red', title: 'Crítico', text: 'Azúcar en rango hiperglucémico.' };
+}
+
+function evaluatePressure(systolic, diastolic) {
+    const sys = Number(systolic);
+    const dia = Number(diastolic);
+    if (sys <= 90 || dia <= 60) return { status: 'yellow', title: 'Bajo', text: 'Presión arterial baja. Observa síntomas.' };
+    if (sys <= 120 && dia <= 80) return { status: 'green', title: 'Normal', text: 'Presión dentro de rango saludable.' };
+    if (sys <= 139 || dia <= 89) return { status: 'yellow', title: 'Elevado', text: 'Presión elevada. Monitorea con tu médico.' };
+    return { status: 'red', title: 'Crítico', text: 'Presión arterial alta. Busca atención médica.' };
+}
+
+function updateStatusBanner(state) {
+    const banner = document.getElementById('statusBanner');
+    const title = document.getElementById('statusTitle');
+    const text = document.getElementById('statusText');
+    banner.classList.remove('green', 'yellow', 'red');
+    banner.classList.add(state.status);
+    title.textContent = state.title;
+    text.textContent = state.text;
+}
+
+function setActiveType(type) {
+    document.getElementById('formTitle').textContent = type === 'pressure' ? 'Registrar Presión' : 'Registrar Azúcar';
+    document.getElementById('formDescription').textContent = type === 'pressure'
+        ? 'Ingresa presión sistólica, diastólica y pulso con controles grandes.'
+        : 'Ingresa tu glucosa y elige si es ayunas o después de comer.';
+    document.getElementById('sugarFields').classList.toggle('hidden', type === 'pressure');
+    document.getElementById('pressureFields').classList.toggle('hidden', type !== 'pressure');
+    document.getElementById('sugarType').classList.toggle('active', type === 'sugar');
+    document.getElementById('pressureType').classList.toggle('active', type === 'pressure');
+}
+
+function formatRecordSummary(record) {
+    const date = new Date(record.timestamp);
+    if (record.type === 'sugar') {
+        const meal = record.meal === 'despues' ? 'Después de comer' : 'Ayunas';
+        return `<strong>${record.value} mg/dL</strong><small>${meal} · ${date.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</small>`;
+    }
+    return `<strong>${record.systolic}/${record.diastolic} mmHg</strong><small>Pulso ${record.pulse} lpm · ${date.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</small>`;
+}
+
+function refreshLastSummary() {
+    const records = loadRecords().sort((a, b) => b.timestamp - a.timestamp);
+    const container = document.getElementById('lastSummary');
+    if (!records.length) {
+        container.innerHTML = 'No hay registros guardados todavía.';
+        return;
+    }
+    container.innerHTML = records.slice(0, 2).map(formatRecordSummary).join('');
+}
+
+function handleSubmit(event) {
+    event.preventDefault();
+    const type = document.getElementById('sugarType').classList.contains('active') ? 'sugar' : 'pressure';
+    let record = { id: Date.now(), type, timestamp: Date.now() };
+
+    if (type === 'sugar') {
+        const value = document.getElementById('glucoseValue').value.trim();
+        const meal = document.querySelector('input[name="meal"]:checked')?.value || 'ayunas';
+        if (!value) {
+            updateStatusBanner({ status: 'yellow', title: 'Falta un valor', text: 'Ingresa tu nivel de glucosa antes de guardar.' });
+            return;
         }
-    } catch (error) {
-        console.error('Error en la petición al servidor:', error);
-        showMessage('No se pudo guardar el producto. Revisa la consola.', true);
-    } finally {
-        if (submitButton) {
-            submitButton.disabled = false;
-            submitButton.textContent = originalText;
-        }
-    }
-}
-
-async function createProducto(productoData) {
-    const response = await fetch(API_BASE_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(productoData)
-    });
-
-    if (!response.ok) {
-        const errorBody = await tryParseJson(response);
-        return { success: false, error: errorBody?.error || `Error HTTP ${response.status}` };
-    }
-
-    return response.json();
-}
-
-async function updateProducto(id, productoData) {
-    const response = await fetch(`${API_BASE_URL}?id=${encodeURIComponent(id)}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(productoData)
-    });
-
-    if (!response.ok) {
-        const errorBody = await tryParseJson(response);
-        return { success: false, error: errorBody?.error || `Error HTTP ${response.status}` };
-    }
-
-    return response.json();
-}
-
-// Simplificado: Eliminado el parámetro redundante isCode ya que 'identifier' es el id directo extraído de modeEdit
-async function loadProductForEdit(identifier) {
-    // La API siempre consulta mediante la clave URL '?id='
-    const response = await fetch(`${API_BASE_URL}?id=${encodeURIComponent(identifier)}`);
-
-    if (!response.ok) {
-        const errorBody = await tryParseJson(response);
-        showMessage(errorBody?.error || `No se encontró el producto (HTTP ${response.status}).`, true);
-        return;
-    }
-
-    const result = await response.json();
-    if (!result.success || !result.data) {
-        showMessage(result.error || 'No se pudo cargar el producto para edición.', true);
-        return;
-    }
-
-    // Aseguramos que el id de control sea el devuelto por la base de datos
-    currentProductId = result.data.id;
-    fillForm(result.data);
-    setFormMode('Actualizar producto');
-}
-
-function fillForm(producto) {
-    document.getElementById('codeqr').value = producto.id ?? '';
-    setCodeReadOnly(true);
-    document.getElementById('name').value = producto.nombre ?? '';
-    document.getElementById('description').value = producto.descripcion ?? '';
-    document.getElementById('price').value = producto.precio ?? '';
-    document.getElementById('quantity').value = producto.cantidad ?? '';
-}
-
-function setCodeReadOnly(isReadOnly) {
-    const codeInput = document.getElementById('codeqr');
-    if (!codeInput) {
-        return;
-    }
-    codeInput.readOnly = isReadOnly;
-    codeInput.setAttribute('aria-readonly', isReadOnly ? 'true' : 'false');
-    if (isReadOnly) {
-        codeInput.classList.add('readonly-field');
+        record = { ...record, value: Number(value), meal };
+        updateStatusBanner(evaluateGlucose(value, meal));
     } else {
-        codeInput.classList.remove('readonly-field');
+        const systolic = document.getElementById('systolicValue').value.trim();
+        const diastolic = document.getElementById('diastolicValue').value.trim();
+        const pulse = document.getElementById('pulseValue').value.trim();
+        if (!systolic || !diastolic || !pulse) {
+            updateStatusBanner({ status: 'yellow', title: 'Faltan datos', text: 'Completa todos los campos de presión y pulso.' });
+            return;
+        }
+        record = { ...record, systolic: Number(systolic), diastolic: Number(diastolic), pulse: Number(pulse) };
+        updateStatusBanner(evaluatePressure(systolic, diastolic));
     }
+
+    saveRecord(record);
+    refreshLastSummary();
+    document.getElementById('dataForm').reset();
 }
 
-function setFormMode(label) {
-    const submitButton = document.getElementById('submitButton') || document.querySelector('#product-form button[type="submit"]');
-    if (submitButton) {
-        submitButton.textContent = label;
-        submitButton.disabled = false;
-    }
+function initForm() {
+    const type = getQueryParam('type') === 'pressure' ? 'pressure' : 'sugar';
+    setActiveType(type);
+    document.getElementById('sugarType').addEventListener('click', () => setActiveType('sugar'));
+    document.getElementById('pressureType').addEventListener('click', () => setActiveType('pressure'));
+    document.getElementById('dataForm').addEventListener('submit', handleSubmit);
+    refreshLastSummary();
 }
 
 function getQueryParam(name) {
     const params = new URLSearchParams(window.location.search);
-    const value = params.get(name);
-    return value ? value.trim() : null;
+    return params.get(name);
 }
 
-async function tryParseJson(response) {
-    try {
-        return await response.json();
-    } catch {
-        return null;
-    }
-}
-
-function getFormData() {
-    const codeqr = document.getElementById('codeqr')?.value.trim();
-    const nombre = document.getElementById('name')?.value.trim();
-    const descripcion = document.getElementById('description')?.value.trim();
-    const precioValue = document.getElementById('price')?.value.trim();
-    const cantidadValue = document.getElementById('quantity')?.value.trim();
-
-    const precio = parseFloat(precioValue);
-    const cantidad = parseInt(cantidadValue, 10);
-
-    if (!codeqr || !nombre || !descripcion || isNaN(precio) || isNaN(cantidad)) {
-        return null;
-    }
-
-    return {
-        id: codeqr,
-        nombre,
-        descripcion,
-        precio,
-        cantidad,
-    };
-}
-
-function showMessage(text, isError = false) {
-    const messageElement = document.getElementById('formMessage');
-    if (!messageElement) {
-        alert(text);
-        return;
-    }
-    messageElement.textContent = text;
-    messageElement.classList.add('visible');
-    messageElement.style.backgroundColor = isError ? '#fee2e2' : '#eff6ff';
-    messageElement.style.color = isError ? '#b91c1c' : '#1d4ed8';
-    setTimeout(() => {
-        messageElement.classList.remove('visible');
-    }, 4800);
-}
+document.addEventListener('DOMContentLoaded', initForm);
+document.addEventListener('deviceready', initForm);

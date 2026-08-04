@@ -1,83 +1,61 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
-    <meta charset="utf-8">
-
-<meta http-equiv="Content-Security-Policy"
-content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval';
-connect-src 'self' https://elrjtd.online;
-style-src 'self' 'unsafe-inline';
-media-src *;">    <meta name="format-detection" content="telephone=no">
-    <meta name="msapplication-tap-highlight" content="no">
-    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
-
-    <link rel="stylesheet" href="css/escaner.css">
-
-    <title>Escáner</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Viatlcheck - Ayuda</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/ayuda.css">
 </head>
 
 <body>
-
-    <main class="modulo-escaner">
-
-        <section class="panel-control">
-            <h3>Módulo de Captura</h3>
-
-            <div class="acciones-panel">
-                <a href="form.html" class="btn-secundario">Añadir producto</a>
+    <main class="page-shell">
+        <header class="page-header compact">
+            <a class="back-link" href="inicio.html"><i class="fas fa-arrow-left"></i> Inicio</a>
+            <div>
+                <span class="brand-pill secondary">Ayuda</span>
+                <h1>Usa Viatlcheck en segundos</h1>
+                <p>Un flujo sencillo para que cualquier persona registre sus signos vitales sin esfuerzo.</p>
             </div>
+        </header>
 
-
-             <div id="container">
-                <div id="barkoderView"></div>
-                <div class="btnContainer">
-                    <button id="startScanBtn" class="actionButton" disabled>Start Scanning</button>
-                    <button id="stopScanBtn" class="actionButton" disabled>Stop Scanning</button>
+        <section class="help-card">
+            <div class="help-step">
+                <div class="help-step-number">1</div>
+                <div>
+                    <strong>Presiona un botón grande</strong>
+                    <p>Selecciona Registrar Azúcar o Registrar Presión.</p>
                 </div>
-                <div id="resultContainer" class="resultContainer" style="display:none;">
-                    <p>Result: <a id="resultText"></a></p>
-                    <p>Type: <span id="resultType"></span></p>
-                    <img id="resultImage" class="resultImage" alt="Scanned Thumbnail" />
+            </div>
+            <div class="help-step">
+                <div class="help-step-number">2</div>
+                <div>
+                    <strong>Captura tus valores</strong>
+                    <p>Los campos usan texto grande y validación simple.</p>
+                </div>
+            </div>
+            <div class="help-step">
+                <div class="help-step-number">3</div>
+                <div>
+                    <strong>Ve el color de alerta</strong>
+                    <p>La pantalla indica si el valor es normal, elevado o crítico.</p>
+                </div>
+            </div>
+            <div class="help-step">
+                <div class="help-step-number">4</div>
+                <div>
+                    <strong>Envía el reporte</strong>
+                    <p>Desde Tendencias puedes compartir un resumen con el doctor.</p>
                 </div>
             </div>
         </section>
 
-        <section class="seccion-crud">
+        <a href="tendencias.html" class="btn-primary-action">Ir a reportes</a>
+    </main>
 
-            <div class="formulario-mock">
-                <h4>Captura manual</h4>
-
-                <div class="grupo-input">
-                    <input type="text" id="input-codigo-manual" placeholder="Código de barras manual">
-                    <button id="btnGuardar">Guardar</button>
-                </div>
-
-                <p id="mensaje-sistema" class="mensaje-sistema"></p>
-            </div>
-
-            <div class="historial-escaneos">
-                <h4>imagen</h4>
-                  <img src="img/escanerIMG.jpg" alt="Imagen del escáner">
-                <ul id="lista-codigos" class="lista-datos"></ul>
-            </div>
-
-        </section>
-
-        
-
-
-            <script src="cordova.js"></script>
-            <script src="js/config.js"></script>
-            <script src="js/escaner.js"></script>
-
-            <a href="ventas.html" class="btn-secundario">Volver al menú</a>
+    <script src="cordova.js"></script>
+    <script src="js/ayuda.js"></script>
 </body>
-</section>
-</main>
-<br>
-
-
-
 
 </html>

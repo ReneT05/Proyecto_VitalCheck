@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Viatlcheck - Registrar presión</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/registro.css">
+</head>
+
+<body>
+    <main class="page-shell">
+        <header class="page-header compact">
+            <a class="back-link" href="inicio.html"><i class="fas fa-arrow-left"></i> Inicio</a>
+            <div>
+                <span class="brand-pill secondary">Presión</span>
+                <h1>Registrar presión arterial</h1>
+                <p>Registra sistólica, diastólica y pulso con seguridad.</p>
+            </div>
+        </header>
+
+        <section class="form-card">
+            <div class="status-banner green" id="statusBanner">
+                <div>
+                    <strong id="statusTitle">Listo para guardar</strong>
+                    <p id="statusText">Llena los tres valores y guarda el registro.</p>
+                </div>
+                <div class="status-icon"><i class="fas fa-heart-pulse"></i></div>
+            </div>
+
+            <form id="pressureForm">
+                <div class="field-group horizontal-group">
+                    <div>
+                        <label class="field-label" for="systolicValue">Sistólica</label>
+                        <input id="systolicValue" type="number" min="60" max="220" inputmode="numeric" placeholder="120" class="field-input" required>
+                    </div>
+                    <div>
+                        <label class="field-label" for="diastolicValue">Diastólica</label>
+                        <input id="diastolicValue" type="number" min="40" max="140" inputmode="numeric" placeholder="80" class="field-input" required>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="pulseValue">Pulso</label>
+                    <input id="pulseValue" type="number" min="30" max="180" inputmode="numeric" placeholder="72" class="field-input" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary-action"><i class="fas fa-check-circle"></i> Guardar presión</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="summary-block">
+            <div class="section-title"><span>Último registro enviado</span></div>
+            <div id="lastSummary" class="summary-list">Aún no hay datos guardados.</div>
+        </section>
+    </main>
+
+    <script src="cordova.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/vitals.js"></script>
+    <script src="js/presion.js"></script>
+</body>
+
+</html>

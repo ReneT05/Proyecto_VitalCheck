@@ -1,54 +1,76 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="utf-8">
-
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; connect-src 'self' https://dictionaries-measurement-powers-lisa.trycloudflare.com; style-src 'self' 'unsafe-inline'; media-src *;">
-
-    <meta name="format-detection" content="telephone=no">
-    <meta name="msapplication-tap-highlight" content="no">
-    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
-    <meta name="color-scheme" content="light dark">
-
-    <link rel="stylesheet" href="css/escaner.css">
-
-    <title>Menú Principal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Vitalcheck</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/inicio.css">
 </head>
 
 <body>
+    <main class="page-shell">
+        <header class="page-header">
+            <div>
+                <span class="brand-pill">Vitalcheck</span>
+                <h1>Registro exprés de signos vitales</h1>
+                <p class="page-description">Registra glucosa, presión arterial y pulso en segundos. Alertas de color inmediatas para pacientes y adultos mayores.</p>
+            </div>
+            <button class="logout-button" id="logoutButton"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+        </header>
 
-    <main class="modulo-escaner">
-
-        <section class="panel-control">
-            <h3>Menú Principal</h3>
+        <section class="hero-actions">
+            <a class="hero-button sugar" href="azucar.html">
+                <div class="hero-icon"><i class="fas fa-droplet"></i></div>
+                <div>
+                    <strong>Registrar Azúcar</strong>
+                    <span>Rápido y sin textos pequeños.</span>
+                </div>
+            </a>
+            <a class="hero-button pressure" href="presion.html">
+                <div class="hero-icon"><i class="fas fa-heart-pulse"></i></div>
+                <div>
+                    <strong>Registrar Presión</strong>
+                    <span>Sistólica, diastólica y pulso en un solo paso.</span>
+                </div>
+            </a>
         </section>
-        <section class="seccion-menu">
 
-            <a href="form.html" class="btn-primario boton-menu">
-                formulario
-            </a>
-
-            <a href="Inventario.html" class="btn-primario boton-menu">
-                Inventario
-            </a>
-
-            <a href="escaner.html" class="btn-primario boton-menu">
-                Escáner
-            </a>
-
-            <a href="ventas.html" class="btn-primario boton-menu">
-                compra y venta
-            </a>
-
+        <section class="status-panel" aria-live="polite">
+            <div class="status-header">
+                <div>
+                    <p>Último registro</p>
+                    <h2 id="lastRecordTitle">Sin registros aún</h2>
+                </div>
+                <div class="status-value" id="lastRecordValue"></div>
+            </div>
+            <p id="lastRecordNote" class="status-note">Registra tu primer dato para ver aquí el resultado.</p>
         </section>
 
+        <section class="history-block">
+            <div class="section-title">
+                <span>Historial rápido</span>
+                <a href="historial.html">Ver todo</a>
+            </div>
+            <div id="recentList" class="history-list"></div>
+        </section>
+
+        <section class="bottom-actions">
+            <a class="action-pill" href="tendencias.html">
+                <i class="fas fa-chart-line"></i>
+                Ver tendencias y reporte
+            </a>
+            <a class="action-pill" href="ayuda.html">
+                <i class="fas fa-question-circle"></i>
+                Ayuda rápida
+            </a>
+        </section>
     </main>
 
     <script src="cordova.js"></script>
-    <script src="js/index.js"></script>
-
+    <script src="js/auth.js"></script>
+    <script src="js/inicio.js"></script>
 </body>
 
 </html>

@@ -1,16 +1,20 @@
-{
-  "name": "com.example.puntoventa",
-  "displayName": "PuntoVenta",
+﻿{
+  "name": "com.example.vitalcheck",
+  "displayName": "Viatlcheck",
   "version": "1.0.0",
-  "description": "A sample Apache Cordova application that responds to the deviceready event.",
+  "description": "Aplicación Viatlcheck para registro exprés de glucosa y presión arterial.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "ecosystem:cordova"
+    "ecosystem:cordova",
+    "salud",
+    "vitales",
+    "diabetes",
+    "hipertensión"
   ],
-  "author": "Apache Cordova Team",
+  "author": "Viatlcheck Team",
   "license": "Apache-2.0",
   "devDependencies": {
     "barkoder-cordova": "^1.6.8",

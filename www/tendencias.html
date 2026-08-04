@@ -1,214 +1,75 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-    <title>Sistema de Ventas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Viatlcheck - Tendencias</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/ventas.css">
+    <link rel="stylesheet" href="css/tendencias.css">
 </head>
 
 <body>
+    <main class="page-shell">
+        <header class="page-header">
+            <div>
+                <span class="brand-pill">Tendencias</span>
+                <h1>Gráficos y reporte para el médico</h1>
+                <p>Revisa la estabilidad de tus registros y comparte un resumen en un clic.</p>
+            </div>
+            <a class="tiny-link" href="inicio.html"><i class="fas fa-home"></i> Inicio</a>
+        </header>
 
-    <!-- Barra de navegación superior integrada al diseño -->
-    <nav class="pos-nav">
-        <div class="nav-container">
-            <div class="logo-area">
-                <div class="logo-icon">
-                    <i class="fas fa-cash-register"></i>
+        <section class="metric-grid">
+            <article class="metric-card green-card">
+                <span>Normal</span>
+                <strong id="normalCount">0</strong>
+                <small>Registros dentro de rango</small>
+            </article>
+            <article class="metric-card yellow-card">
+                <span>Elevado</span>
+                <strong id="elevatedCount">0</strong>
+                <small>Advertencias</small>
+            </article>
+            <article class="metric-card red-card">
+                <span>Crítico</span>
+                <strong id="criticalCount">0</strong>
+                <small>Alertas urgentes</small>
+            </article>
+        </section>
+
+        <section class="chart-block">
+            <div class="section-title"><span>Azúcar en sangre</span></div>
+            <div id="sugarChart" class="trend-chart"></div>
+        </section>
+
+        <section class="chart-block">
+            <div class="section-title"><span>Presión arterial</span></div>
+            <div id="pressureChart" class="trend-chart"></div>
+        </section>
+
+        <section class="report-block">
+            <div class="report-header">
+                <div>
+                    <h2>Reporte médico</h2>
+                    <p>Envía un resumen limpio por WhatsApp o correo.</p>
                 </div>
-                <div class="logo-text">
-                    Sistema de Ventas
+                <div class="report-buttons">
+                    <button id="whatsappShare" class="btn-secondary"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                    <button id="emailShare" class="btn-primary-action"><i class="fas fa-envelope"></i> Correo</button>
                 </div>
             </div>
-            <div class="nav-buttons">
-                <a href="form.html" class="nav-btn">
-                    <i class="fas fa-file-alt"></i> Formulario
-                </a>
-                <a href="Inventario.html" class="nav-btn">
-                    <i class="fas fa-boxes"></i> Inventario
-                </a>
-                <a href="escaner.html" class="nav-btn">
-                    <i class="fas fa-qrcode"></i> Escáner
-                </a>
-                <a href="ventas.html" class="nav-btn active">
-                    <i class="fas fa-shopping-cart"></i> Venta
-                </a>
-            </div>
-        </div>
-    </nav>
-    <main class="app-shell">
-        <div class="panel">
-            <div class="panel-row row g-0">
-                <!-- COLUMNA CARRITO (IZQUIERDA) -->
-                <div class="side-left col-12 col-xl-4 col-lg-5">
-                    <div class="header-cart">
-                        <div class="brand">
-                            <i class="fas fa-store me-2"></i>
-                            <strong>Ventas</strong>
-                            <small>Administrador</small>
-                        </div>
-                        <div class="ticket-number">
-                            <i class="far fa-receipt"></i>
-                            <span id="currentTicketNumber">Ticket #---</span>
-                        </div>
-                    </div>
+            <div id="reportSummary" class="report-summary">Registra datos para generar el reporte.</div>
+        </section>
 
-                    <!-- Botón de historial -->
-                    <div class="p-3">
-                        <button type="button" class="btn btn-outline-info w-100" id="historyButton">
-                            <i class="fas fa-history me-2"></i>
-                            Ver Historial de Tickets
-                        </button>
-                    </div>
-
-                    <!-- Badge mobile para total -->
-                    <div class="mobile-totals-badge d-lg-none" id="mobileTotalBadge">
-                        <span><i class="fas fa-shopping-cart"></i> Total carrito</span>
-                        <strong id="mobileTotalSpan">$0.00</strong>
-                    </div>
-
-                    <div class="section-title">
-                        <i class="fas fa-ticket-alt me-2"></i> Ticket de venta
-                    </div>
-
-                    <div class="item-list" id="itemList">
-                        <div class="text-center text-muted p-4">El ticket está vacío</div>
-                    </div>
-
-                    <div class="totals">
-                        <div class="line">
-                            <span><i class="fas fa-calculator"></i> Sub-total</span>
-                            <span id="cartSubtotal">$0.00</span>
-                        </div>
-                        <button class="btn btn-primary-action" type="button" id="payButtonMobileStyle">
-                            <i class="fas fa-credit-card me-2"></i>
-                            Pagar $0.00
-                        </button>
-                    </div>
-                </div>
-
-                <!-- COLUMNA PRODUCTOS / CATÁLOGO -->
-                <aside class="side-right col-12 col-xl-8 col-lg-7">
-                    <div class="search-box">
-                        <div class="input-group shadow-sm rounded-pill overflow-hidden">
-                            <span class="input-group-text bg-white border-0">
-                                <i class="fas fa-search"></i>
-                            </span>
-                            <input type="search" id="searchInput" class="form-control border-0" placeholder="Buscar productos por nombre o código...">
-                        </div>
-                    </div>
-
-                    <div class="product-grid" id="productGrid"></div>
-                </aside>
-            </div>
-        </div>
-
-        <!-- MODAL PREVIEW PAGO -->
-        <div id="paymentPreview" class="payment-preview d-none">
-            <div class="preview-panel">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <i class="fas fa-receipt fa-2x mb-2 d-block"></i>
-                        <h5 class="mb-0">Resumen de compra</h5>
-                        <small class="text-muted">Revisa antes de pagar</small>
-                    </div>
-                    <button type="button" class="btn-close" id="previewCloseBtn"></button>
-                </div>
-                <div class="preview-items" id="previewItemsList"></div>
-                <div class="preview-totals mt-3">
-                    <div class="d-flex justify-content-between">
-                        <span><i class="fas fa-calculator"></i> Sub-total</span>
-                        <strong id="previewSubtotal">$0.00</strong>
-                    </div>
-                    <div class="d-flex justify-content-between total-line mt-2 pt-2">
-                        <span><i class="fas fa-money-bill-wave"></i> Total</span>
-                        <strong id="previewTotalAmount">$0.00</strong>
-                    </div>
-                </div>
-                <div class="d-flex gap-2 mt-4">
-                    <button class="btn btn-secondary flex-fill" id="previewCancelBtn">
-                        <i class="fas fa-arrow-left"></i> Volver
-                    </button>
-                    <button class="btn btn-success flex-fill" id="previewConfirmBtn">
-                        <i class="fas fa-check-circle"></i> Confirmar pago
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- MODAL HISTORIAL VENTAS (TICKETS) -->
-        <div id="historyPreview" class="payment-preview d-none">
-            <div class="preview-panel" style="max-width: 550px;">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <i class="fas fa-ticket-alt fa-2x mb-2 d-block"></i>
-                        <h5 class="mb-0">Historial de Tickets</h5>
-                        <small class="text-muted">Todos los tickets registrados</small>
-                    </div>
-                    <button type="button" class="btn-close" id="historyCloseBtn"></button>
-                </div>
-
-                <!-- Filtro por número de ticket -->
-                <div class="mb-3">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <input type="text" class="form-control" id="ticketSearchInput" placeholder="Buscar ticket #...">
-                    </div>
-                </div>
-
-                <div class="history-items" id="historyList"></div>
-
-                <div class="mt-3 pt-2 border-top">
-                    <div class="d-flex justify-content-between">
-                        <span><i class="fas fa-receipt"></i> Total tickets</span>
-                        <strong id="historyCountSpan">0</strong>
-                    </div>
-                    <div class="d-flex justify-content-between mt-1">
-                        <span><i class="fas fa-dollar-sign"></i> Monto total recaudado</span>
-                        <strong id="historyTotalSpan">$0.00</strong>
-                    </div>
-                </div>
-
-                <div class="mt-3">
-                    <button class="btn btn-secondary w-100" id="historyCancelBtn">
-                        <i class="fas fa-times"></i> Cerrar
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- MODAL DETALLE DE TICKET -->
-        <div id="ticketDetailModal" class="payment-preview d-none">
-            <div class="preview-panel" style="max-width: 450px;">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <i class="fas fa-receipt fa-2x mb-2 d-block"></i>
-                        <h5 class="mb-0" id="ticketDetailTitle">Ticket #000000</h5>
-                        <small class="text-muted" id="ticketDetailDate"></small>
-                    </div>
-                    <button type="button" class="btn-close" id="ticketDetailCloseBtn"></button>
-                </div>
-                <div class="ticket-detail-items" id="ticketDetailItems"></div>
-                <div class="mt-3 pt-2 border-top">
-                    <div class="d-flex justify-content-between">
-                        <span><i class="fas fa-dollar-sign"></i> Total</span>
-                        <strong id="ticketDetailTotal">$0.00</strong>
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <button class="btn btn-secondary w-100" id="ticketDetailCancelBtn">
-                        <i class="fas fa-arrow-left"></i> Volver
-                    </button>
-                </div>
-            </div>
-        </div>
+        <section class="history-block">
+            <div class="section-title"><span>Últimos registros</span></div>
+            <div id="recentTrendList" class="history-list"></div>
+        </section>
     </main>
 
-    <script src="js/ventas.js"></script>
-
+    <script src="cordova.js"></script>
+    <script src="js/tendencias.js"></script>
 </body>
 
 </html>
