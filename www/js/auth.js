@@ -1,4 +1,4 @@
-const API_ROOT = 'api';
+const API_ROOT = 'https://elrjtd.online/DDI/RENE';
 
 function getAppToken() {
     return localStorage.getItem('vitalcheckToken');

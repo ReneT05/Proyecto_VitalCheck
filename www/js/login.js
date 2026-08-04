@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const result = await response.json();
+
         if (!response.ok || !result.success) {
             errorMessage.textContent = result.error || 'Usuario/contraseña o PIN incorrectos.';
             return;

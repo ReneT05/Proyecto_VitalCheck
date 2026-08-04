@@ -29,6 +29,22 @@ if (!$userId) {
     exit;
 }
 
+function mapVitalRecord(array $row): array
+{
+    return [
+        'id_registro' => intval($row['id_registro'] ?? 0),
+        'id_usuario' => intval($row['id_usuario'] ?? 0),
+        'tipo_registro' => $row['tipo_registro'] ?? '',
+        'descripcion' => $row['descripcion'] ?? '',
+        'valor' => $row['valor'] ?? null,
+        'fecha_registro' => $row['fecha_registro'] ?? null,
+        'title' => $row['tipo_registro'] ?? '',
+        'metric' => $row['descripcion'] ?? '',
+        'value' => $row['valor'] ?? null,
+        'created_at' => $row['fecha_registro'] ?? null
+    ];
+}
+
 try {
     $db = getConexion();
 } catch (Exception $e) {
@@ -49,94 +65,118 @@ try {
             $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
 
             if ($id) {
-                $select = $db->select('vital_data');
-                $select->where('id', '=', $id);
-                $select->where_and('user_id', '=', $userId);
-                $rows = $select->execute();
-                if (empty($rows)) {
+                $stmt = $db->prepare('SELECT * FROM registros_vitales WHERE id_registro = :id_registro AND id_usuario = :id_usuario LIMIT 1');
+                $stmt->execute([':id_registro' => $id, ':id_usuario' => $userId]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$row) {
                     http_response_code(404);
                     echo json_encode(['success' => false, 'error' => 'Elemento no encontrado']);
                     exit;
                 }
-                echo json_encode(['success' => true, 'data' => $rows[0]], JSON_UNESCAPED_UNICODE);
+
+                echo json_encode(['success' => true, 'data' => mapVitalRecord($row)], JSON_UNESCAPED_UNICODE);
             } else {
+                $sql = 'SELECT * FROM registros_vitales WHERE id_usuario = :id_usuario';
+                $params = [':id_usuario' => $userId];
+
                 if ($q !== null && $q !== '') {
-                    $sql = 'SELECT * FROM vital_data WHERE user_id = ? AND (title LIKE ? OR metric LIKE ? OR created_at LIKE ?) ORDER BY created_at DESC';
-                    $params = [$userId, "%$q%", "%$q%", "%$q%"];
-                    if ($limit > 0) {
-                        $sql .= ' LIMIT ?, ?';
-                        $params[] = $offset;
-                        $params[] = $limit;
-                    }
-                    $stmt = $db->prepare($sql);
-                    foreach ($params as $index => $value) {
-                        $stmt->bindValue($index + 1, $value);
-                    }
-                    $stmt->execute();
-                    $all = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                } else {
-                    $select = $db->select('vital_data');
-                    $select->where('user_id', '=', $userId);
-                    $select->orderby('created_at DESC');
-                    if ($limit > 0) {
-                        $select->limit("$offset, $limit");
-                    }
-                    $all = $select->execute();
+                    $sql .= ' AND (tipo_registro LIKE :query OR descripcion LIKE :query OR fecha_registro LIKE :query)';
+                    $params[':query'] = "%$q%";
                 }
-                echo json_encode(['success' => true, 'data' => $all], JSON_UNESCAPED_UNICODE);
+
+                $sql .= ' ORDER BY fecha_registro DESC';
+
+                if ($limit > 0) {
+                    $sql .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
+                }
+
+                $stmt = $db->prepare($sql);
+                $stmt->execute($params);
+                $all = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                $mapped = array_map('mapVitalRecord', $all);
+                echo json_encode(['success' => true, 'data' => $mapped], JSON_UNESCAPED_UNICODE);
             }
             break;
+
         case 'POST':
-            if (!isset($input['title']) || !isset($input['metric']) || !isset($input['value'])) {
+            $tipoRegistro = isset($input['tipo_registro']) ? trim($input['tipo_registro']) : (isset($input['title']) ? trim($input['title']) : '');
+            $descripcion = isset($input['descripcion']) ? trim($input['descripcion']) : (isset($input['metric']) ? trim($input['metric']) : '');
+            $valor = isset($input['valor']) ? $input['valor'] : (isset($input['value']) ? $input['value'] : null);
+
+            if ($tipoRegistro === '' || $descripcion === '' || $valor === null || $valor === '') {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'error' => 'Faltan campos obligatorios']);
                 exit;
             }
-            $insert = $db->insert('vital_data', 'user_id,title,metric,value,created_at');
-            $insert->value($userId);
-            $insert->value($input['title']);
-            $insert->value($input['metric']);
-            $insert->value($input['value']);
-            $insert->value(date('Y-m-d H:i:s'));
-            $insert->execute();
+
+            $stmt = $db->prepare('INSERT INTO registros_vitales (id_usuario, tipo_registro, descripcion, valor, fecha_registro) VALUES (:id_usuario, :tipo_registro, :descripcion, :valor, :fecha_registro)');
+            $stmt->execute([
+                ':id_usuario' => $userId,
+                ':tipo_registro' => $tipoRegistro,
+                ':descripcion' => $descripcion,
+                ':valor' => $valor,
+                ':fecha_registro' => date('Y-m-d H:i:s')
+            ]);
+
             echo json_encode(['success' => true, 'message' => 'Dato creado'], JSON_UNESCAPED_UNICODE);
             break;
+
         case 'PUT':
             if (!$id) {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'error' => 'ID requerido']);
                 exit;
             }
-            $update = $db->update('vital_data');
-            $updated = false;
-            foreach (['title', 'metric', 'value'] as $field) {
-                if (isset($input[$field])) {
-                    $update->set($field, $input[$field]);
-                    $updated = true;
-                }
+
+            $updates = [];
+            $params = [':id_registro' => $id, ':id_usuario' => $userId];
+
+            if (array_key_exists('tipo_registro', $input) || array_key_exists('title', $input)) {
+                $value = isset($input['tipo_registro']) ? trim($input['tipo_registro']) : trim($input['title']);
+                $updates[] = 'tipo_registro = :tipo_registro';
+                $params[':tipo_registro'] = $value;
             }
-            if (!$updated) {
+
+            if (array_key_exists('descripcion', $input) || array_key_exists('metric', $input)) {
+                $value = isset($input['descripcion']) ? trim($input['descripcion']) : trim($input['metric']);
+                $updates[] = 'descripcion = :descripcion';
+                $params[':descripcion'] = $value;
+            }
+
+            if (array_key_exists('valor', $input) || array_key_exists('value', $input)) {
+                $value = isset($input['valor']) ? $input['valor'] : $input['value'];
+                $updates[] = 'valor = :valor';
+                $params[':valor'] = $value;
+            }
+
+            if (empty($updates)) {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'error' => 'No hay campos para actualizar']);
                 exit;
             }
-            $update->where('id', '=', $id);
-            $update->where_and('user_id', '=', $userId);
-            $update->execute();
+
+            $sql = 'UPDATE registros_vitales SET ' . implode(', ', $updates) . ' WHERE id_registro = :id_registro AND id_usuario = :id_usuario';
+            $stmt = $db->prepare($sql);
+            $stmt->execute($params);
+
             echo json_encode(['success' => true, 'message' => 'Dato actualizado'], JSON_UNESCAPED_UNICODE);
             break;
+
         case 'DELETE':
             if (!$id) {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'error' => 'ID requerido']);
                 exit;
             }
-            $del = $db->delete('vital_data');
-            $del->where('id', '=', $id);
-            $del->where_and('user_id', '=', $userId);
-            $del->execute();
+
+            $stmt = $db->prepare('DELETE FROM registros_vitales WHERE id_registro = :id_registro AND id_usuario = :id_usuario');
+            $stmt->execute([':id_registro' => $id, ':id_usuario' => $userId]);
+
             echo json_encode(['success' => true, 'message' => 'Dato eliminado'], JSON_UNESCAPED_UNICODE);
             break;
+
         default:
             http_response_code(405);
             echo json_encode(['success' => false, 'error' => 'Método no permitido']);
