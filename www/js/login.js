@@ -11,24 +11,35 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         errorMessage.textContent = '';
 
+        const username = document.getElementById('usernameInput').value.trim();
+        const password = document.getElementById('passwordInput').value.trim();
         const pin = document.getElementById('pinInput').value.trim();
-        if (!pin) {
-            errorMessage.textContent = 'Ingrese su PIN de acceso.';
-            return;
+
+        if (!username || !password) {
+            if (!pin) {
+                errorMessage.textContent = 'Ingresa usuario/contraseña o PIN para entrar.';
+                return;
+            }
         }
 
-        const response = await backendFetch('api/auth.php', {
+        const payload = username && password
+            ? { username, password }
+            : { pin };
+
+        const response = await fetch('api/auth.php', {
             method: 'POST',
-            body: JSON.stringify({ pin })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         });
 
         if (!response) {
+            errorMessage.textContent = 'Error al conectar con el servidor.';
             return;
         }
 
         const result = await response.json();
         if (!response.ok || !result.success) {
-            errorMessage.textContent = result.error || 'PIN incorrecto o servidor inaccesible.';
+            errorMessage.textContent = result.error || 'Usuario/contraseña o PIN incorrectos.';
             return;
         }
 

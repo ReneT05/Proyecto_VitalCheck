@@ -69,3 +69,14 @@ function verifyJwt($token, $secretKey)
 
     return hash_equals($expectedSignatureB64, $signatureB64);
 }
+
+function decodeJwt($token)
+{
+    if (!$token || substr_count($token, '.') !== 2) {
+        return false;
+    }
+
+    list(, $payloadB64,) = explode('.', $token);
+    $payloadJson = base64url_decode($payloadB64);
+    return json_decode($payloadJson, true) ?: false;
+}

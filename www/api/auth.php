@@ -23,23 +23,74 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-if (!isset($input['pin']) || trim($input['pin']) === '') {
-    http_response_code(400);
-    echo json_encode([ 'success' => false, 'error' => 'PIN requerido' ]);
+$username = isset($input['username']) ? trim($input['username']) : '';
+$password = isset($input['password']) ? trim($input['password']) : '';
+$pin = isset($input['pin']) ? trim($input['pin']) : '';
+
+$user = null;
+
+try {
+    $db = getConexion();
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode([ 'success' => false, 'error' => 'Error de conexión al servidor' ]);
     exit;
 }
 
-$pin = trim($input['pin']);
-if ($pin !== $validPin) {
-    http_response_code(401);
-    echo json_encode([ 'success' => false, 'error' => 'PIN inválido' ]);
+if ($username !== '' && $password !== '') {
+    $stmt = $db->prepare('SELECT * FROM users WHERE username = :username LIMIT 1');
+    $stmt->execute([':username' => $username]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
+        http_response_code(401);
+        echo json_encode([ 'success' => false, 'error' => 'Usuario o contraseña incorrectos' ]);
+        exit;
+    }
+
+    $storedPassword = $user['password'];
+    if (!password_verify($password, $storedPassword) && $password !== $storedPassword) {
+        http_response_code(401);
+        echo json_encode([ 'success' => false, 'error' => 'Usuario o contraseña incorrectos' ]);
+        exit;
+    }
+} elseif ($pin !== '') {
+    $stmt = $db->prepare('SELECT * FROM users WHERE pin = :pin LIMIT 1');
+    $stmt->execute([':pin' => $pin]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
+        if ($pin !== $validPin) {
+            http_response_code(401);
+            echo json_encode([ 'success' => false, 'error' => 'PIN inválido' ]);
+            exit;
+        }
+        $stmt = $db->prepare('SELECT * FROM users WHERE username = :username LIMIT 1');
+        $stmt->execute([':username' => 'admin']);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$user) {
+            http_response_code(500);
+            echo json_encode([ 'success' => false, 'error' => 'Usuario de emergencia no encontrado' ]);
+            exit;
+        }
+    }
+} else {
+    http_response_code(400);
+    echo json_encode([ 'success' => false, 'error' => 'Usuario/contraseña o PIN requerido' ]);
     exit;
 }
 
 $header = base64url_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
-$payload = base64url_encode(json_encode(['sub' => 'usuario_vital', 'iat' => time(), 'exp' => time() + 3600]));
+$payloadData = [
+    'sub' => 'usuario_vital',
+    'uid' => intval($user['id']),
+    'username' => $user['username'],
+    'iat' => time(),
+    'exp' => time() + 3600
+];
+$payload = base64url_encode(json_encode($payloadData));
 $signature = hash_hmac('sha256', "$header.$payload", $secretKey, true);
 $signature = base64url_encode($signature);
 $token = "$header.$payload.$signature";
 
-echo json_encode([ 'success' => true, 'token' => $token ]);
+echo json_encode([ 'success' => true, 'token' => $token, 'user' => ['id' => intval($user['id']), 'username' => $user['username'], 'full_name' => $user['full_name']] ]);

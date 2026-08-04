@@ -19,15 +19,27 @@
             </div>
 
             <form id="loginForm" class="login-form">
-                <label class="field-label" for="pinInput">PIN de acceso</label>
-                <input id="pinInput" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="8" placeholder="****" class="field-input" required>
+                <div class="field-group">
+                    <label class="field-label" for="usernameInput">Usuario</label>
+                    <input id="usernameInput" type="text" autocomplete="username" placeholder="Usuario" class="field-input">
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="passwordInput">Contraseña</label>
+                    <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Contraseña" class="field-input">
+                </div>
+                <div class="field-divider">o</div>
+                <div class="field-group">
+                    <label class="field-label" for="pinInput">PIN de acceso</label>
+                    <input id="pinInput" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="8" placeholder="****" class="field-input">
+                </div>
                 <p id="loginError" class="login-error"></p>
                 <button type="submit" class="btn-primary-action"><i class="fas fa-sign-in-alt"></i> Iniciar sesión</button>
             </form>
 
             <div class="login-note">
-                <p>PIN de ejemplo: <strong>1234</strong></p>
-                <p>Tu sesión protege el acceso al módulo CRUD y a los datos de tendencias.</p>
+                <p>Usuario de ejemplo: <strong>admin</strong></p>
+                <p>Contraseña de ejemplo: <strong>admin123</strong></p>
+                <p>PIN de emergencia: <strong>1234</strong></p>
             </div>
         </section>
     </main>

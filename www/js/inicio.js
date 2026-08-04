@@ -1,50 +1,44 @@
-﻿function loadRecords() {
-    try {
-        const stored = localStorage.getItem('ViatlcheckRecords');
-        return stored ? JSON.parse(stored) : [];
-    } catch {
-        return [];
-    }
+﻿async function fetchLatestRecords() {
+    const response = await backendFetch('api/data.php?limit=3&offset=0');
+    if (!response) return [];
+    const result = await response.json();
+    if (!result.success) return [];
+    return result.data;
 }
 
-function renderHome() {
-    const records = loadRecords().sort((a, b) => b.timestamp - a.timestamp);
-    const lastRecord = records[0];
+function renderHome(records) {
     const title = document.getElementById('lastRecordTitle');
     const value = document.getElementById('lastRecordValue');
     const note = document.getElementById('lastRecordNote');
     const list = document.getElementById('recentList');
 
-    if (lastRecord) {
-        title.textContent = lastRecord.type === 'sugar' ? 'Último azúcar' : 'Última presión';
-        value.textContent = lastRecord.type === 'sugar'
+    if (records.length) {
+        const lastRecord = records[0];
+        const isSugar = lastRecord.title === 'Azúcar';
+        title.textContent = isSugar ? 'Último azúcar' : 'Última presión';
+        value.textContent = isSugar
             ? `${lastRecord.value} mg/dL`
-            : `${lastRecord.systolic}/${lastRecord.diastolic} mmHg`;
-        note.textContent = `Registrado el ${new Date(lastRecord.timestamp).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })}`;
+            : `${lastRecord.metric} mmHg`;
+        note.textContent = `Registrado el ${new Date(lastRecord.created_at).toLocaleDateString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })}`;
+        list.innerHTML = '';
+        records.forEach(record => {
+            const item = document.createElement('article');
+            item.className = 'history-item';
+            item.innerHTML = `
+                <div class="icon-box ${record.title === 'Azúcar' ? 'sugar' : 'pressure'}"><i class="fas ${record.title === 'Azúcar' ? 'fa-droplet' : 'fa-heart-pulse'}"></i></div>
+                <div>
+                    <strong>${record.title === 'Azúcar' ? `${record.value} mg/dL` : `${record.metric} mmHg`}</strong>
+                    <small>${new Date(record.created_at).toLocaleDateString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</small>
+                </div>
+            `;
+            list.appendChild(item);
+        });
     } else {
         title.textContent = 'Sin registros aún';
         value.textContent = '';
         note.textContent = 'Registra tu primer dato tocando uno de los botones grandes.';
-    }
-
-    list.innerHTML = '';
-    if (records.length === 0) {
         list.innerHTML = '<div class="history-item"><div><strong>No hay registros</strong><small>Registra tu primer dato para ver el historial.</small></div></div>';
-        return;
     }
-
-    records.slice(0, 3).forEach(record => {
-        const item = document.createElement('article');
-        item.className = 'history-item';
-        item.innerHTML = `
-            <div class="icon-box ${record.type}"><i class="fas ${record.type === 'sugar' ? 'fa-droplet' : 'fa-heart-pulse'}"></i></div>
-            <div>
-                <strong>${record.type === 'sugar' ? `${record.value} mg/dL` : `${record.systolic}/${record.diastolic} mmHg`}</strong>
-                <small>${new Date(record.timestamp).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</small>
-            </div>
-        `;
-        list.appendChild(item);
-    });
 }
 
 function attachLogout() {
@@ -56,16 +50,20 @@ function attachLogout() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+async function initHome() {
+    attachLogout();
+    const records = await fetchLatestRecords();
+    renderHome(records);
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
     if (requireLogin()) {
-        renderHome();
-        attachLogout();
+        await initHome();
     }
 });
 
-document.addEventListener('deviceready', () => {
+document.addEventListener('deviceready', async () => {
     if (requireLogin()) {
-        renderHome();
-        attachLogout();
+        await initHome();
     }
 });

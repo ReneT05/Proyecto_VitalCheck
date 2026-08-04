@@ -21,6 +21,14 @@ if (!verifyJwt($token, $secretKey)) {
     exit;
 }
 
+$payload = decodeJwt($token);
+$userId = $payload['uid'] ?? null;
+if (!$userId) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Token inválido']);
+    exit;
+}
+
 try {
     $db = getConexion();
 } catch (Exception $e) {
@@ -36,9 +44,14 @@ $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
 try {
     switch ($method) {
         case 'GET':
+            $q = isset($_GET['q']) ? trim($_GET['q']) : null;
+            $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 50;
+            $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
+
             if ($id) {
                 $select = $db->select('vital_data');
                 $select->where('id', '=', $id);
+                $select->where_and('user_id', '=', $userId);
                 $rows = $select->execute();
                 if (empty($rows)) {
                     http_response_code(404);
@@ -47,8 +60,29 @@ try {
                 }
                 echo json_encode(['success' => true, 'data' => $rows[0]], JSON_UNESCAPED_UNICODE);
             } else {
-                $select = $db->select('vital_data');
-                $all = $select->execute();
+                if ($q !== null && $q !== '') {
+                    $sql = 'SELECT * FROM vital_data WHERE user_id = ? AND (title LIKE ? OR metric LIKE ? OR created_at LIKE ?) ORDER BY created_at DESC';
+                    $params = [$userId, "%$q%", "%$q%", "%$q%"];
+                    if ($limit > 0) {
+                        $sql .= ' LIMIT ?, ?';
+                        $params[] = $offset;
+                        $params[] = $limit;
+                    }
+                    $stmt = $db->prepare($sql);
+                    foreach ($params as $index => $value) {
+                        $stmt->bindValue($index + 1, $value);
+                    }
+                    $stmt->execute();
+                    $all = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                } else {
+                    $select = $db->select('vital_data');
+                    $select->where('user_id', '=', $userId);
+                    $select->orderby('created_at DESC');
+                    if ($limit > 0) {
+                        $select->limit("$offset, $limit");
+                    }
+                    $all = $select->execute();
+                }
                 echo json_encode(['success' => true, 'data' => $all], JSON_UNESCAPED_UNICODE);
             }
             break;
@@ -58,7 +92,8 @@ try {
                 echo json_encode(['success' => false, 'error' => 'Faltan campos obligatorios']);
                 exit;
             }
-            $insert = $db->insert('vital_data', 'title,metric,value,created_at');
+            $insert = $db->insert('vital_data', 'user_id,title,metric,value,created_at');
+            $insert->value($userId);
             $insert->value($input['title']);
             $insert->value($input['metric']);
             $insert->value($input['value']);
@@ -86,6 +121,7 @@ try {
                 exit;
             }
             $update->where('id', '=', $id);
+            $update->where_and('user_id', '=', $userId);
             $update->execute();
             echo json_encode(['success' => true, 'message' => 'Dato actualizado'], JSON_UNESCAPED_UNICODE);
             break;
@@ -97,6 +133,7 @@ try {
             }
             $del = $db->delete('vital_data');
             $del->where('id', '=', $id);
+            $del->where_and('user_id', '=', $userId);
             $del->execute();
             echo json_encode(['success' => true, 'message' => 'Dato eliminado'], JSON_UNESCAPED_UNICODE);
             break;

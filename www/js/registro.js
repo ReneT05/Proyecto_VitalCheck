@@ -1,21 +1,4 @@
-﻿const STORAGE_KEY = 'ViatlcheckRecords';
-
-function loadRecords() {
-    try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        return stored ? JSON.parse(stored) : [];
-    } catch {
-        return [];
-    }
-}
-
-function saveRecord(record) {
-    const records = loadRecords();
-    records.push(record);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-}
-
-function evaluateGlucose(value, meal) {
+﻿function evaluateGlucose(value, meal) {
     const numeric = Number(value);
     if (meal === 'despues') {
         if (numeric <= 139) return { status: 'green', title: 'Normal', text: 'Azúcar en rango normal después de comer.' };
@@ -58,29 +41,36 @@ function setActiveType(type) {
     document.getElementById('pressureType').classList.toggle('active', type === 'pressure');
 }
 
-function formatRecordSummary(record) {
-    const date = new Date(record.timestamp);
-    if (record.type === 'sugar') {
-        const meal = record.meal === 'despues' ? 'Después de comer' : 'Ayunas';
-        return `<strong>${record.value} mg/dL</strong><small>${meal} · ${date.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</small>`;
-    }
-    return `<strong>${record.systolic}/${record.diastolic} mmHg</strong><small>Pulso ${record.pulse} lpm · ${date.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</small>`;
+async function fetchRecentRecords(limit = 2) {
+    const response = await backendFetch(`api/data.php?limit=${limit}&offset=0`);
+    if (!response) return [];
+    const result = await response.json();
+    if (!result.success) return [];
+    return result.data;
 }
 
-function refreshLastSummary() {
-    const records = loadRecords().sort((a, b) => b.timestamp - a.timestamp);
+function formatRecordSummary(record) {
+    const date = new Date(record.created_at);
+    if (record.title === 'Azúcar') {
+        const meal = record.metric === 'despues' ? 'Después de comer' : 'Ayunas';
+        return `<strong>${record.value} mg/dL</strong><small>${meal} · ${date.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</small>`;
+    }
+    return `<strong>${record.metric} mmHg</strong><small>Pulso ${record.value} lpm · ${date.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</small>`;
+}
+
+async function refreshLastSummary() {
+    const records = await fetchRecentRecords(2);
     const container = document.getElementById('lastSummary');
     if (!records.length) {
         container.innerHTML = 'No hay registros guardados todavía.';
         return;
     }
-    container.innerHTML = records.slice(0, 2).map(formatRecordSummary).join('');
+    container.innerHTML = records.map(formatRecordSummary).join('');
 }
 
-function handleSubmit(event) {
+async function handleSubmit(event) {
     event.preventDefault();
     const type = document.getElementById('sugarType').classList.contains('active') ? 'sugar' : 'pressure';
-    let record = { id: Date.now(), type, timestamp: Date.now() };
 
     if (type === 'sugar') {
         const value = document.getElementById('glucoseValue').value.trim();
@@ -89,27 +79,52 @@ function handleSubmit(event) {
             updateStatusBanner({ status: 'yellow', title: 'Falta un valor', text: 'Ingresa tu nivel de glucosa antes de guardar.' });
             return;
         }
-        record = { ...record, value: Number(value), meal };
+
         updateStatusBanner(evaluateGlucose(value, meal));
-    } else {
-        const systolic = document.getElementById('systolicValue').value.trim();
-        const diastolic = document.getElementById('diastolicValue').value.trim();
-        const pulse = document.getElementById('pulseValue').value.trim();
-        if (!systolic || !diastolic || !pulse) {
-            updateStatusBanner({ status: 'yellow', title: 'Faltan datos', text: 'Completa todos los campos de presión y pulso.' });
-            return;
+
+        const response = await backendFetch('api/data.php', {
+            method: 'POST',
+            body: JSON.stringify({ title: 'Azúcar', metric: meal, value: Number(value) })
+        });
+        if (!response) return;
+        const result = await response.json();
+        if (result.success) {
+            document.getElementById('lastSummary').textContent = `Guardado: ${value} mg/dL (${meal === 'despues' ? 'Después de comer' : 'Ayunas'})`;
+            document.getElementById('dataForm').reset();
+            await refreshLastSummary();
+        } else {
+            document.getElementById('lastSummary').textContent = `Error: ${result.error}`;
         }
-        record = { ...record, systolic: Number(systolic), diastolic: Number(diastolic), pulse: Number(pulse) };
-        updateStatusBanner(evaluatePressure(systolic, diastolic));
+        return;
     }
 
-    saveRecord(record);
-    refreshLastSummary();
-    document.getElementById('dataForm').reset();
+    const systolic = document.getElementById('systolicValue').value.trim();
+    const diastolic = document.getElementById('diastolicValue').value.trim();
+    const pulse = document.getElementById('pulseValue').value.trim();
+    if (!systolic || !diastolic || !pulse) {
+        updateStatusBanner({ status: 'yellow', title: 'Faltan datos', text: 'Completa todos los campos de presión y pulso.' });
+        return;
+    }
+
+    updateStatusBanner(evaluatePressure(systolic, diastolic));
+
+    const response = await backendFetch('api/data.php', {
+        method: 'POST',
+        body: JSON.stringify({ title: 'Presión', metric: `${systolic}/${diastolic}`, value: Number(pulse) })
+    });
+    if (!response) return;
+    const result = await response.json();
+    if (result.success) {
+        document.getElementById('lastSummary').textContent = `Guardado: ${systolic}/${diastolic} mmHg · Pulso ${pulse}`;
+        document.getElementById('dataForm').reset();
+        await refreshLastSummary();
+    } else {
+        document.getElementById('lastSummary').textContent = `Error: ${result.error}`;
+    }
 }
 
 function initForm() {
-    const type = getQueryParam('type') === 'pressure' ? 'pressure' : 'sugar';
+    const type = new URLSearchParams(window.location.search).get('type') === 'pressure' ? 'pressure' : 'sugar';
     setActiveType(type);
     document.getElementById('sugarType').addEventListener('click', () => setActiveType('sugar'));
     document.getElementById('pressureType').addEventListener('click', () => setActiveType('pressure'));
@@ -117,10 +132,12 @@ function initForm() {
     refreshLastSummary();
 }
 
-function getQueryParam(name) {
-    const params = new URLSearchParams(window.location.search);
-    return params.get(name);
-}
+document.addEventListener('DOMContentLoaded', () => {
+    if (!requireLogin()) return;
+    initForm();
+});
 
-document.addEventListener('DOMContentLoaded', initForm);
-document.addEventListener('deviceready', initForm);
+document.addEventListener('deviceready', () => {
+    if (!requireLogin()) return;
+    initForm();
+});
