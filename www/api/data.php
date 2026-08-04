@@ -65,9 +65,10 @@ if (isset($_GET['user_id'])) {
     $userId = intval($input['user_id']);
 }
 
-// If no user_id provided (login removed), default to admin user id 1
 if (!$userId) {
-    $userId = 1;
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'user_id requerido']);
+    exit;
 }
 
 try {

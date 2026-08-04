@@ -1,50 +1,183 @@
 ﻿document.addEventListener('DOMContentLoaded', () => {
+
     if (!requireLogin()) return;
+
+
     const searchInput = document.getElementById('recordSearch');
     const list = document.getElementById('historyList');
 
+
     async function fetchRecords(query = '') {
-        const encodedQuery = encodeURIComponent(query);
-        const response = await backendFetch(`api/data.php?q=${encodedQuery}&limit=50&offset=0`);
-        if (!response) return [];
-        const result = await response.json();
-        if (!result.success) {
-            list.innerHTML = `<div class="record-card"><div class="record-content"><strong>Error:</strong> ${result.error}</div></div>`;
+
+        try {
+
+            const response = await backendFetch(
+                `data.php?q=${encodeURIComponent(query)}&limit=50&offset=0`
+            );
+
+
+            console.log("Respuesta status:", response.status);
+            console.log("URL:", response.url);
+
+
+            const result = await response.json();
+
+
+            console.log("Datos historial:", result);
+
+
+
+            if(!result.success){
+
+                list.innerHTML = `
+                <div class="record-card">
+                    <strong>Error:</strong>
+                    ${result.error}
+                </div>`;
+
+                return [];
+
+            }
+
+
+            return result.data || [];
+
+
+        } catch(error){
+
+            console.error("Error historial:", error);
+
+            list.innerHTML = `
+            <div class="record-card">
+                Error cargando historial
+            </div>`;
+
             return [];
+
         }
-        return result.data;
+
     }
 
-    function renderHistory(records) {
-        list.innerHTML = '';
-        if (!records.length) {
-            list.innerHTML = '<div class="record-card"><div class="record-content"><strong>No se encontraron registros</strong><small>Prueba con otro término de búsqueda.</small></div></div>';
+
+
+
+
+    function renderHistory(records){
+
+
+        list.innerHTML="";
+
+
+        if(records.length===0){
+
+            list.innerHTML=`
+            <div class="record-card">
+                <strong>No hay registros</strong>
+            </div>`;
+
             return;
+
         }
-        records.forEach(record => {
-            const card = document.createElement('article');
-            card.className = 'record-card';
-            card.innerHTML = `
-                <div class="record-icon ${record.title === 'Azúcar' ? 'sugar' : 'pressure'}"><i class="fas ${record.title === 'Azúcar' ? 'fa-droplet' : 'fa-heart-pulse'}"></i></div>
-                <div class="record-content">
-                    <strong>${record.title === 'Azúcar' ? `${record.value} mg/dL` : record.metric}</strong>
-                    <div>${record.title === 'Azúcar' ? (record.metric === 'despues' ? 'Después de comer' : 'Ayunas') : `Pulso ${record.value} lpm`}</div>
-                    <div class="record-footer">${new Date(record.created_at).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })}</div>
+
+
+
+        records.forEach(record=>{
+
+
+            const card=document.createElement('article');
+
+
+            card.className="record-card";
+
+
+
+            let icon =
+                record.tipo_registro === "Azúcar"
+                ? "fa-droplet"
+                : "fa-heart-pulse";
+
+
+
+            let valor;
+
+
+
+            if(record.tipo_registro==="Azúcar"){
+
+                valor = `${record.value} mg/dL`;
+
+            }else{
+
+                valor = `${record.metric} mmHg`;
+
+            }
+
+
+
+
+            card.innerHTML=`
+
+            <div class="record-icon">
+                <i class="fas ${icon}"></i>
+            </div>
+
+
+            <div class="record-content">
+
+                <strong>
+                    ${valor}
+                </strong>
+
+
+                <div>
+                    ${record.tipo_registro}
                 </div>
+
+
+                <small>
+                    ${new Date(record.created_at)
+                    .toLocaleString('es-MX')}
+                </small>
+
+
+            </div>
+
             `;
+
+
             list.appendChild(card);
+
+
         });
+
+
     }
 
-    async function refresh(query = '') {
-        const records = await fetchRecords(query);
-        renderHistory(records);
+
+
+
+
+    async function refresh(){
+
+        const data = await fetchRecords(
+            searchInput.value
+        );
+
+        renderHistory(data);
+
     }
 
-    searchInput.addEventListener('input', () => refresh(searchInput.value));
+
+
+
+
+    searchInput.addEventListener(
+        "input",
+        refresh
+    );
+
+
     refresh();
-});
 
-document.addEventListener('deviceready', () => {
-    if (!requireLogin()) return;
+
 });
