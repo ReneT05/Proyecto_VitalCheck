@@ -7,10 +7,12 @@
     <title>Viatlcheck - Historial</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/historial.css">
+    <link rel="stylesheet" href="css/layout.css">
 </head>
 
 <body>
-    <main class="page-shell">
+    <main class="page-shell app-layout" id="appShell">
+        <section class="content">
         <header class="page-header compact">
             <a class="back-link" href="inicio.html"><i class="fas fa-arrow-left"></i> Inicio</a>
             <div>
@@ -28,10 +30,12 @@
         <section class="history-block">
             <div id="historyList" class="history-list"></div>
         </section>
+        </section>
     </main>
 
     <script src="cordova.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
     <script src="js/historial.js"></script>
 </body>
 

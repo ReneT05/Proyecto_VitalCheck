@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Viatlcheck - Usuarios</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/registro.css">
+    <link rel="stylesheet" href="css/layout.css">
+</head>
+
+<body>
+    <main class="page-shell app-layout" id="appShell">
+        <section class="content">
+            <header class="page-header compact">
+                <span class="brand-pill secondary">Usuarios</span>
+                <h1>Crear nuevo usuario</h1>
+                <p>Crea una cuenta con contraseña y PIN de recuperación para un paciente o familiar.</p>
+            </header>
+
+            <section class="form-card">
+                <form id="registerForm">
+                    <div class="field-group">
+                        <label class="field-label" for="firstName">Nombre</label>
+                        <input id="firstName" type="text" class="field-input" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="lastName">Apellido</label>
+                        <input id="lastName" type="text" class="field-input" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="newUsername">Usuario</label>
+                        <input id="newUsername" type="text" class="field-input" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="email">Correo</label>
+                        <input id="email" type="email" class="field-input">
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="newPassword">Contraseña</label>
+                        <input id="newPassword" type="password" class="field-input" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="newPin">PIN de recuperación</label>
+                        <input id="newPin" type="password" inputmode="numeric" pattern="[0-9]{4,8}" maxlength="8" class="field-input" required>
+                    </div>
+                    <div class="field-group horizontal-group">
+                        <div>
+                            <label class="field-label" for="birthDate">Fecha de nacimiento</label>
+                            <input id="birthDate" type="date" class="field-input">
+                        </div>
+                        <div>
+                            <label class="field-label" for="phone">Teléfono</label>
+                            <input id="phone" type="tel" inputmode="tel" class="field-input">
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="gender">Sexo</label>
+                        <select id="gender" class="field-input">
+                            <option value="">Seleccionar</option>
+                            <option value="F">Femenino</option>
+                            <option value="M">Masculino</option>
+                            <option value="O">Otro</option>
+                        </select>
+                    </div>
+                    <p id="registerError" class="login-error"></p>
+                    <button type="submit" class="btn-primary-action"><i class="fas fa-user-plus"></i> Crear usuario</button>
+                </form>
+            </section>
+        </section>
+    </main>
+
+    <script src="cordova.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/register.js"></script>
+</body>
+
+</html>

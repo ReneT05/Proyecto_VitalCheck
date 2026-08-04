@@ -7,10 +7,12 @@
     <title>Viatlcheck - Registrar azúcar</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/registro.css">
+    <link rel="stylesheet" href="css/layout.css">
 </head>
 
 <body>
-    <main class="page-shell">
+    <main class="page-shell app-layout" id="appShell">
+        <section class="content">
         <header class="page-header compact">
             <a class="back-link" href="inicio.html"><i class="fas fa-arrow-left"></i> Inicio</a>
             <div>
@@ -51,10 +53,12 @@
             <div class="section-title"><span>Último registro enviado</span></div>
             <div id="lastSummary" class="summary-list">Aún no hay datos guardados.</div>
         </section>
+        </section>
     </main>
 
     <script src="cordova.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
     <script src="js/vitals.js"></script>
     <script src="js/azucar.js"></script>
 </body>

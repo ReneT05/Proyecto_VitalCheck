@@ -96,10 +96,14 @@ async function backendFetch(path, options = {}) {
     let requestUrl;
     if (/^https?:\/\//i.test(path)) {
         requestUrl = path;
-    } else if (API_ROOT) {
-        requestUrl = API_ROOT.replace(/\/+$/g, '') + '/' + normalizePath(path);
     } else {
-        requestUrl = normalizePath(path);
+        const normalized = normalizePath(path);
+        const localPrefix = normalized.startsWith('api/') || normalized === 'data.php';
+        if (localPrefix || !API_ROOT) {
+            requestUrl = normalized;
+        } else {
+            requestUrl = API_ROOT.replace(/\/+$/g, '') + '/' + normalized;
+        }
     }
 
     return fetch(requestUrl, options);

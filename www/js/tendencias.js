@@ -100,29 +100,35 @@
     }
 
     function renderTrends(records) {
-        const counts = countByStatus(records);
+        const sorted = [...records].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        const counts = countByStatus(sorted);
         normalCount.textContent = counts.green;
         elevatedCount.textContent = counts.yellow;
         criticalCount.textContent = counts.red;
-        renderSvgLine(sugarChart, groupTrend(records, 'sugar'), '#16a34a');
-        renderSvgLine(pressureChart, groupTrend(records, 'pressure'), '#0ea5e9');
+        renderSvgLine(sugarChart, groupTrend(sorted, 'sugar'), '#16a34a');
+        renderSvgLine(pressureChart, groupTrend(sorted, 'pressure'), '#0ea5e9');
         recentList.innerHTML = '';
-        records.slice(0, 4).forEach(record => {
-            const item = document.createElement('article');
-            item.className = 'history-item';
-            item.innerHTML = `
-                <div>
-                    <strong>${record.title}</strong>
-                    <small>${new Date(record.created_at).toLocaleDateString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</small>
-                </div>
-                <div>
-                    <strong>${buildRecordLabel(record)}</strong>
-                </div>
-            `;
-            recentList.appendChild(item);
-        });
-        reportSummary.textContent = records.length
-            ? `Último: ${buildRecordLabel(records[0])}. Total registros: ${records.length}. Usa compartir para enviar al médico.`
+        const recent = sorted.slice(0, 4);
+        if (!recent.length) {
+            recentList.innerHTML = '<div class="record-card record-card-empty"><strong>No hay registros recientes</strong></div>';
+        } else {
+            recent.forEach(record => {
+                const item = document.createElement('article');
+                item.className = 'history-item';
+                item.innerHTML = `
+                    <div>
+                        <strong>${record.title}</strong>
+                        <small>${new Date(record.created_at).toLocaleDateString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</small>
+                    </div>
+                    <div>
+                        <strong>${buildRecordLabel(record)}</strong>
+                    </div>
+                `;
+                recentList.appendChild(item);
+            });
+        }
+        reportSummary.textContent = sorted.length
+            ? `Último: ${buildRecordLabel(sorted[0])}. Total registros: ${sorted.length}. Usa compartir para enviar al médico.`
             : 'Registra datos desde Inicio para generar un reporte.';
     }
 

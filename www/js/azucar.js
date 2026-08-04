@@ -32,8 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
             evaluateGlucose(value, meal)
         );
 
-        const response = await backendFetch('/data.php', {
+        const response = await backendFetch('https://elrjtd.online/DDI/RENE/data.php', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({
                 tipo_registro: 'Azúcar',
                 metric: meal,
