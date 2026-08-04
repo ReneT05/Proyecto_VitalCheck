@@ -29,7 +29,13 @@ async function backendFetch(path, options = {}) {
         options.headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(path, options);
+    let requestUrl = path;
+    if (!/^https?:\/\//i.test(path)) {
+        const normalizedPath = path.replace(/^\/+/, '').replace(/^api\//, '');
+        requestUrl = `${API_ROOT}/${normalizedPath}`;
+    }
+
+    const response = await fetch(requestUrl, options);
 
     if (response.status === 401) {
         clearAppToken();

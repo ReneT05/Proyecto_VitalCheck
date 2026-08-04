@@ -13,7 +13,7 @@ CREATE TABLE productos (
 ) ENGINE=InnoDB ;
 ```
 
-Base URL: `/DDI/API/productos.php`
+Base URL: `https://elrjtd.online/DDI/RENE/productos.php`
 
 Contenido de los endpoints
 - Todas las respuestas están en `application/json`.
@@ -47,7 +47,7 @@ curl -X GET "http://localhost/DDI/API/productos.php"
 - Ejemplo curl:
 
 ```bash
-curl -X GET "http://localhost/DDI/API/productos.php?id=1"
+curl -X GET "https://elrjtd.online/DDI/RENE/productos.php?id=1"
 ```
 - Respuesta (200):
 
@@ -72,7 +72,7 @@ curl -X GET "http://localhost/DDI/API/productos.php?id=1"
 ```bash
 curl -X POST -H "Content-Type: application/json" \
   -d '{"codigo":"P002","nombre":"Nuevo","descripcion":"Desc","precio":99.99,"cantidad":10}' \
-  "http://localhost/DDI/API/productos.php"
+  "https://elrjtd.online/DDI/RENE/productos.php"
 ```
 - Respuesta (200):
 
@@ -105,7 +105,7 @@ curl -X PUT -H "Content-Type: application/json" \
 - Ejemplo curl:
 
 ```bash
-curl -X DELETE "http://localhost/DDI/API/productos.php?id=1"
+curl -X DELETE "https://elrjtd.online/DDI/RENE/productos.php?id=1"
 ```
 - Respuesta (200):
 

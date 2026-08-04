@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/conector.php';
-
 header('Content-Type: application/json; charset=utf-8');
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
@@ -11,207 +9,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-try {
-    $db = getConexion();
-} catch (Exception $e) {
+$remoteBase = 'https://elrjtd.online/DDI/RENE';
+$remoteUrl = $remoteBase . '/productos.php';
+$query = $_SERVER['QUERY_STRING'] ? '?' . $_SERVER['QUERY_STRING'] : '';
+$remoteUrl .= $query;
+
+function getRequestHeaders() {
+    if (function_exists('getallheaders')) {
+        return getallheaders();
+    }
+
+    $headers = [];
+    foreach ($_SERVER as $name => $value) {
+        if (strpos($name, 'HTTP_') === 0) {
+            $headerName = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
+            $headers[$headerName] = $value;
+        }
+    }
+    return $headers;
+}
+
+$ch = curl_init($remoteUrl);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $_SERVER['REQUEST_METHOD']);
+
+$headers = [];
+foreach (getRequestHeaders() as $name => $value) {
+    if (strtolower($name) === 'host') {
+        continue;
+    }
+    $headers[] = "$name: $value";
+}
+
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+if (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
+    $body = file_get_contents('php://input');
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+}
+
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+$response = curl_exec($ch);
+
+if ($response === false) {
     http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'error' => $e->getMessage()
-    ]);
+    echo json_encode(['success' => false, 'error' => 'Error proxy: ' . curl_error($ch)]);
+    curl_close($ch);
     exit;
 }
 
-$method = $_SERVER['REQUEST_METHOD'];
-$id = isset($_GET['id']) ? intval($_GET['id']) : null;
-$codigo = isset($_GET['codigo']) ? trim($_GET['codigo']) : null;
-$modeEdit = isset($_GET['modeEdit']) ? trim($_GET['modeEdit']) : null;
-$modeAdd = isset($_GET['modeAdd']) ? trim($_GET['modeAdd']) : null;
-
-if (!$codigo && $modeEdit) {
-    $codigo = $modeEdit;
+$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+if ($contentType) {
+    header("Content-Type: $contentType");
 }
-
-$input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
-
-try {
-
-    switch ($method) {
-
-        // =========================
-        // GET
-        // =========================
-        case 'GET':
-
-            if ($id) {
-
-                $select = $db->select('productos');
-                $select->where('id', '=', $id);
-
-                $rows = $select->execute();
-
-                if (empty($rows)) {
-                    http_response_code(404);
-
-                    echo json_encode([
-                        'success' => false,
-                        'error' => 'Producto no encontrado'
-                    ]);
-                    exit;
-                }
-
-                echo json_encode([
-                    'success' => true,
-                    'data' => $rows[0]
-                ], JSON_UNESCAPED_UNICODE);
-
-            } elseif ($codigo) {
-
-                $select = $db->select('productos');
-                $select->where('id', '=', $codigo);
-
-                $rows = $select->execute();
-
-                if (empty($rows)) {
-                    http_response_code(404);
-
-                    echo json_encode([
-                        'success' => false,
-                        'error' => 'Producto no encontrado'
-                    ]);
-                    exit;
-                }
-
-                echo json_encode([
-                    'success' => true,
-                    'data' => $rows[0]
-                ], JSON_UNESCAPED_UNICODE);
-
-            } else {
-
-                $select = $db->select('productos');
-                $all = $select->execute();
-
-                echo json_encode([
-                    'success' => true,
-                    'data' => $all
-                ], JSON_UNESCAPED_UNICODE);
-            }
-
-        break;
-
-
-        // =========================
-        // POST
-        // =========================
-        case 'POST':
-
-            // Verificar que venga código
-            if (!isset($input['codigo']) || $input['codigo'] === '') {
-
-                http_response_code(400);
-
-                echo json_encode([
-                    'success' => false,
-                    'error' => 'Falta campo: codigo'
-                ]);
-
-                exit;
-            }
-
-            $codigo = $input['codigo'];
-
-            // Buscar producto existente
-            $buscar = $db->select('productos');
-            $buscar->where('codigo', '=', $codigo);
-
-            $resultado = $buscar->execute();
-
-            // =====================================
-            // SI EL PRODUCTO YA EXISTE
-            // =====================================
-            if (!empty($resultado)) {
-
-                $producto = $resultado[0];
-
-                $nuevaCantidad = intval($producto['cantidad']) + 1;
-
-                $update = $db->update('productos');
-
-                $update->set('cantidad', $nuevaCantidad);
-
-                $update->where('codigo', '=', $codigo);
-
-                $update->execute();
-
-                echo json_encode([
-                    'success' => true,
-                    'status' => 'existe',
-                    'mensaje' => 'Cantidad actualizada',
-                    'producto' => $producto['nombre'],
-                    'nueva_cantidad' => $nuevaCantidad
-                ], JSON_UNESCAPED_UNICODE);
-
-                exit;
-            }
-
-            // =====================================
-            // SI NO EXISTE
-            // =====================================
-
-            // Si solo mandaron codigo
-            $required = ['nombre', 'descripcion', 'precio', 'cantidad'];
-
-            $faltanCampos = false;
-
-            foreach ($required as $field) {
-                if (!isset($input[$field]) || $input[$field] === '') {
-                    $faltanCampos = true;
-                }
-            }
-
-            // Respuesta para frontend
-            if ($faltanCampos) {
-
-                echo json_encode([
-                    'success' => true,
-                    'status' => 'nuevo',
-                    'mensaje' => 'Producto no existe, registrar producto'
-                ], JSON_UNESCAPED_UNICODE);
-
-                exit;
-            }
-
-            // Crear producto nuevo
-            $insert = $db->insert(
-                'productos',
-                'codigo,nombre,descripcion,precio,cantidad'
-            );
-
-            $insert->value($input['codigo']);
-            $insert->value($input['nombre']);
-            $insert->value($input['descripcion']);
-            $insert->value($input['precio']);
-            $insert->value($input['cantidad']);
-
-            $insert->execute();
-
-            $newId = $db->lastInsertId();
-
-            echo json_encode([
-                'success' => true,
-                'status' => 'registrado',
-                'mensaje' => 'Producto registrado correctamente',
-                'id' => (int)$newId
-            ], JSON_UNESCAPED_UNICODE);
-
-        break;
-
-
-        // =========================
-        // PUT
-        // =========================
-        case 'PUT':
+http_response_code($status);
+echo $response;
+curl_close($ch);
+exit;
 
             if (!$id && !$codigo) {
 
