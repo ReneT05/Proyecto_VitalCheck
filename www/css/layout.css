@@ -113,3 +113,71 @@
     order: -1;
   }
 }
+
+.sidebar-toggle {
+  display: none;
+}
+
+.sidebar-overlay {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .sidebar-toggle {
+    display: inline-flex;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    border: none;
+    background: #2563eb;
+    color: #ffffff;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
+    cursor: pointer;
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 1040;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .sidebar-overlay.sidebar-overlay--visible {
+    display: block;
+    opacity: 1;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: min(320px, 80vw);
+    height: 100vh;
+    margin: 0;
+    transform: translateX(-110%);
+    transition: transform 0.25s ease;
+    z-index: 1050;
+    overflow-y: auto;
+    max-height: 100vh;
+  }
+
+  .sidebar.sidebar--open {
+    transform: translateX(0);
+  }
+
+  .sidebar .sidebar-profile,
+  .sidebar .sidebar-nav,
+  .sidebar .sidebar-logout,
+  .sidebar .sidebar-note {
+    margin-right: 0;
+  }
+}

@@ -5,6 +5,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once __DIR__ . '/conector.php';
+require_once __DIR__ . '/jwtUtils.php';
 
 
 header('Content-Type: application/json; charset=utf-8');
@@ -225,46 +226,52 @@ try {
 
                     }
 
-                $passwordOk = false;
-                if (password_needs_rehash($user['contrasena'], PASSWORD_DEFAULT)) {
-                    $passwordOk = ($contrasena === $user['contrasena']);
-                } else {
-                    $passwordOk = password_verify($contrasena, $user['contrasena']);
-                    if (!$passwordOk && $contrasena === $user['contrasena']) {
-                        $passwordOk = true;
+                    $passwordOk = false;
+                    if (password_needs_rehash($user['contrasena'], PASSWORD_DEFAULT)) {
+                        $passwordOk = ($contrasena === $user['contrasena']);
+                    } else {
+                        $passwordOk = password_verify($contrasena, $user['contrasena']);
+                        if (!$passwordOk && $contrasena === $user['contrasena']) {
+                            $passwordOk = true;
+                        }
                     }
-                }
 
-                if (!$passwordOk) {
-                    http_response_code(401);
+                    if (!$passwordOk) {
+                        http_response_code(401);
+                        echo json_encode([
+                            "success" => false,
+                            "error" => "Contraseña incorrecta"
+                        ]);
+                        exit;
+                    }
+
+                    if (!password_get_info($user['contrasena'])['algo']) {
+                        // plain password stored, optionally rehash on login
+                        $newHash = password_hash($contrasena, PASSWORD_DEFAULT);
+                        $rehashStmt = $db->prepare('UPDATE usuarios SET contrasena = :hash WHERE id_usuario = :id');
+                        $rehashStmt->execute([':hash' => $newHash, ':id' => $user['id_usuario']]);
+                    }
+
+                    $jwt = generarJWT([
+                        'id' => $user['id_usuario'],
+                        'usuario' => $user['usuario'],
+                        'nombre' => $user['nombre']
+                    ]);
+
                     echo json_encode([
-                        "success" => false,
-                        "error" => "Contraseña incorrecta"
+                        "success" => true,
+                        "jwt" => $jwt,
+                        "usuario" => [
+                            "id_usuario" => $user['id_usuario'],
+                            "nombre" => $user['nombre'],
+                            "usuario" => $user['usuario']
+                        ]
                     ]);
                     exit;
                 }
 
-                if (!password_get_info($user['contrasena'])['algo']) {
-                    // plain password stored, optionally rehash on login
-                    $newHash = password_hash($contrasena, PASSWORD_DEFAULT);
-                    $rehashStmt = $db->prepare('UPDATE usuarios SET contrasena = :hash WHERE id_usuario = :id');
-                    $rehashStmt->execute([':hash' => $newHash, ':id' => $user['id_usuario']]);
-                }
-
-                echo json_encode([
-                    "success" => true,
-                    "token" => "vital-" . time(),
-                    "usuario" => [
-                        "id_usuario" => $user['id_usuario'],
-                        "nombre" => $user['nombre'],
-                        "usuario" => $user['usuario']
-                    ]
-                ]);
-                exit;
-            }
-
-            if ($pin != "") {
-                $stmt = $db->prepare(
+                if ($pin != "") {
+                    $stmt = $db->prepare(
                         "SELECT * FROM usuarios
              WHERE pin=:pin
              LIMIT 1"
@@ -303,9 +310,15 @@ try {
 
 
 
+                    $jwt = generarJWT([
+                        'id' => $user['id_usuario'],
+                        'usuario' => $user['usuario'],
+                        'nombre' => $user['nombre']
+                    ]);
+
                     echo json_encode([
                         "success" => true,
-                        "token" => "vital-" . time(),
+                        "jwt" => $jwt,
                         "usuario" => [
                             "id_usuario" => $user['id_usuario'],
                             "nombre" => $user['nombre'],

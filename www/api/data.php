@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/conector.php';
-// JWT removed — API uses explicit user_id parameter for identifying the user
+require_once __DIR__ . '/jwtUtils.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
@@ -62,6 +62,23 @@ if (isset($_GET['user_id'])) {
     $userId = intval($_GET['user_id']);
 } elseif (isset($input['user_id'])) {
     $userId = intval($input['user_id']);
+}
+
+$jwt = extraerJWT();
+if ($jwt) {
+    $validation = verificarJWT($jwt);
+    if ($validation['valido']) {
+        $tokenData = $validation['data'];
+        if (isset($tokenData->id)) {
+            $userId = intval($tokenData->id);
+        } elseif (isset($tokenData->id_usuario)) {
+            $userId = intval($tokenData->id_usuario);
+        }
+    } else {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'error' => 'JWT inválido: ' . $validation['error']]);
+        exit;
+    }
 }
 
 if (!$userId) {
