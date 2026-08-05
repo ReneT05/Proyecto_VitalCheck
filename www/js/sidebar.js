@@ -12,16 +12,14 @@ function createSidebar(activePage) {
         </div>
         <nav class="sidebar-nav">
             <a class="sidebar-link ${activePage === 'inicio' ? 'active' : ''}" href="inicio.html"><i class="fas fa-home"></i>Inicio</a>
+            <a class="sidebar-link ${activePage === 'perfil' ? 'active' : ''}" href="usuarios.html?edit=1"><i class="fas fa-user-cog"></i>Mi cuenta</a>
+            <a class="sidebar-link ${activePage === 'registro' ? 'active' : ''}" href="registro.html"><i class="fas fa-notes-medical"></i>Registrar valor</a>
             <a class="sidebar-link ${activePage === 'historial' ? 'active' : ''}" href="historial.html"><i class="fas fa-history"></i>Historial</a>
             <a class="sidebar-link ${activePage === 'tendencias' ? 'active' : ''}" href="tendencias.html"><i class="fas fa-chart-line"></i>Tendencias</a>
-            <a class="sidebar-link ${activePage === 'registro' ? 'active' : ''}" href="registro.html"><i class="fas fa-notes-medical"></i>Registrar valor</a>
             <a class="sidebar-link ${activePage === 'usuarios' ? 'active' : ''}" href="usuarios.html"><i class="fas fa-user-plus"></i>Crear usuario</a>
             <a class="sidebar-link ${activePage === 'ayuda' ? 'active' : ''}" href="ayuda.html"><i class="fas fa-question-circle"></i>Ayuda</a>
         </nav>
         <button class="sidebar-logout logout-action" type="button"><i class="fas fa-sign-out-alt"></i>Cerrar sesión</button>
-        <div class="sidebar-note">
-            Usa tu PIN si olvidaste la contraseña.
-        </div>
     `;
     return sidebar;
 }
@@ -68,10 +66,16 @@ function attachSidebar(containerSelector, activePage) {
 
 function getActivePageFromPath() {
     const path = window.location.pathname.toLowerCase();
+    const query = new URLSearchParams(window.location.search);
     if (path.includes('historial.html')) return 'historial';
     if (path.includes('tendencias.html')) return 'tendencias';
     if (path.includes('registro.html')) return 'registro';
-    if (path.includes('usuarios.html')) return 'usuarios';
+    if (path.includes('usuarios.html')) {
+        if (query.get('edit') === '1' || query.get('edit') === 'true') {
+            return 'perfil';
+        }
+        return 'usuarios';
+    }
     return 'inicio';
 }
 

@@ -490,9 +490,17 @@ VALUES
 
         case "PUT":
 
+            if (!$id) {
+                $jwt = extraerJWT();
+                if ($jwt) {
+                    $validation = verificarJWT($jwt);
+                    if ($validation['valido'] && isset($validation['data']->id)) {
+                        $id = intval($validation['data']->id);
+                    }
+                }
+            }
 
             if (!$id) {
-
                 http_response_code(400);
 
                 echo json_encode([
