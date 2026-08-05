@@ -13,10 +13,10 @@ function getConexion(array $opts = null)
     if (!is_array($opts)) {
         $opts = [
             'tipo' => 'mysql',
-            'servidor' => 'localhost',
-            'bd' => 'vitalcheck',
-            'usuario' => 'root',
-            'contrasena' => ''
+            'servidor' => 'localhost:3306',
+            'bd' => 'elrjtdon_VitalCheck',
+            'usuario' => 'elrjtdon_Rene',
+            'contrasena' => '05febrero05'
         ];
     }
 

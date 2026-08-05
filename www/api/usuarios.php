@@ -4,9 +4,9 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+require_once '../../vendor/autoload.php';
 require_once __DIR__ . '/conector.php';
 require_once __DIR__ . '/jwtUtils.php';
-
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
@@ -226,30 +226,13 @@ try {
 
                     }
 
-                    $passwordOk = false;
-                    if (password_needs_rehash($user['contrasena'], PASSWORD_DEFAULT)) {
-                        $passwordOk = ($contrasena === $user['contrasena']);
-                    } else {
-                        $passwordOk = password_verify($contrasena, $user['contrasena']);
-                        if (!$passwordOk && $contrasena === $user['contrasena']) {
-                            $passwordOk = true;
-                        }
-                    }
-
-                    if (!$passwordOk) {
+                    if ($contrasena != $user['contrasena']) {
                         http_response_code(401);
-                        echo json_encode([
+                         echo json_encode([
                             "success" => false,
-                            "error" => "ContraseÃ±a incorrecta"
+                            "error" => "Contrase«Ða incorrecta"
                         ]);
-                        exit;
-                    }
-
-                    if (!password_get_info($user['contrasena'])['algo']) {
-                        // plain password stored, optionally rehash on login
-                        $newHash = password_hash($contrasena, PASSWORD_DEFAULT);
-                        $rehashStmt = $db->prepare('UPDATE usuarios SET contrasena = :hash WHERE id_usuario = :id');
-                        $rehashStmt->execute([':hash' => $newHash, ':id' => $user['id_usuario']]);
+                    exit;
                     }
 
                     $jwt = generarJWT([
@@ -362,6 +345,7 @@ try {
             $fecha = $input['fecha_nacimiento'] ?? null;
             $sexo = $input['sexo'] ?? null;
             $telefono = $input['telefono'] ?? null;
+            $firebase_token = $input['firebase_token'] ?? null;
 
 
 
@@ -431,15 +415,13 @@ try {
             $stmt = $db->prepare(
 
                 "INSERT INTO usuarios
+                
+                    (nombre,apellido,usuario,correo,contrasena,pin,
+                    fecha_nacimiento,sexo,telefono,firebase_token)
 
-(nombre,apellido,usuario,correo,contrasena,pin,
-fecha_nacimiento,sexo,telefono)
-
-VALUES
-
-(:nombre,:apellido,:usuario,:correo,:contrasena,
-:pin,:fecha,:sexo,:telefono)"
-
+                VALUES
+                    (:nombre,:apellido,:usuario,:correo,:contrasena,
+                    :pin,:fecha,:sexo,:telefono,:firebase_token)
             );
 
 
@@ -455,7 +437,8 @@ VALUES
                 ":pin" => $pin,
                 ":fecha" => $fecha,
                 ":sexo" => $sexo,
-                ":telefono" => $telefono
+                ":telefono" => $telefono,
+                ":firebase_token" => $firebase_token
 
 
             ]);
@@ -490,17 +473,9 @@ VALUES
 
         case "PUT":
 
-            if (!$id) {
-                $jwt = extraerJWT();
-                if ($jwt) {
-                    $validation = verificarJWT($jwt);
-                    if ($validation['valido'] && isset($validation['data']->id)) {
-                        $id = intval($validation['data']->id);
-                    }
-                }
-            }
 
             if (!$id) {
+
                 http_response_code(400);
 
                 echo json_encode([
@@ -529,7 +504,8 @@ VALUES
                 "pin",
                 "fecha_nacimiento",
                 "sexo",
-                "telefono"
+                "telefono",
+                "firebase_token"
 
             ] as $campo) {
 

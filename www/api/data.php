@@ -1,22 +1,30 @@
 <?php
-require_once __DIR__ . '/conector.php';
-require_once __DIR__ . '/jwtUtils.php';
-
+// CORS PRIMERO
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
 }
 
+ini_set('display_errors',0);
+ini_set('log_errors',1);
+
+
+// DESPUÉS LA CONEXIÓN
+require_once __DIR__ . '/conector.php';
+require_once __DIR__ . '/jwtUtils.php';
+require_once '../../vendor/autoload.php';
+
 
 function mapGlucoseRow(array $row): array
 {
     return [
-        'id_registro' => intval($row['id_glucosa'] ?? 0),
+        'id_registro' => 'glu_'.$row['id_glucosa'],
         'id_usuario' => intval($row['id_usuario'] ?? 0),
         'tipo_registro' => 'Azúcar',
         'descripcion' => $row['observaciones'] ?? '',
@@ -32,7 +40,7 @@ function mapGlucoseRow(array $row): array
 function mapPressureRow(array $row): array
 {
     return [
-        'id_registro' => intval($row['id_presion'] ?? 0),
+        'id_registro' => 'pre_'.$row['id_presion'],
         'id_usuario' => intval($row['id_usuario'] ?? 0),
         'tipo_registro' => 'Presión',
         'descripcion' => $row['observaciones'] ?? '',
@@ -57,6 +65,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 $id = isset($_GET['id']) ? intval($_GET['id']) : null;
 $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
 
+// Determine user ID without JWT: accept `user_id` in query or request body
 $userId = null;
 if (isset($_GET['user_id'])) {
     $userId = intval($_GET['user_id']);
@@ -64,27 +73,9 @@ if (isset($_GET['user_id'])) {
     $userId = intval($input['user_id']);
 }
 
-$jwt = extraerJWT();
-if ($jwt) {
-    $validation = verificarJWT($jwt);
-    if ($validation['valido']) {
-        $tokenData = $validation['data'];
-        if (isset($tokenData->id)) {
-            $userId = intval($tokenData->id);
-        } elseif (isset($tokenData->id_usuario)) {
-            $userId = intval($tokenData->id_usuario);
-        }
-    } else {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'error' => 'JWT inválido: ' . $validation['error']]);
-        exit;
-    }
-}
-
+// If no user_id provided (login removed), default to admin user id 1
 if (!$userId) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'error' => 'user_id requerido']);
-    exit;
+    $userId = 1;
 }
 
 try {

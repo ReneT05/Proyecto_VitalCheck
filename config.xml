@@ -1,6 +1,6 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
 <widget id="com.example.vitalcheck" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Viatlcheck</name>
+    <name>Vitalcheck</name>
     <description>Aplicación Viatlcheck para registro exprés de glucosa y presión arterial.</description>
     <author email="dev@viatlcheck.com" href="https://viatlcheck.example.com">Viatlcheck Team</author>
     <content src="inicio.html" />

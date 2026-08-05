@@ -1,0 +1,149 @@
+[04-Aug-2026 04:56:11 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'elrjtdon_VitalCheck.users' doesn't exist in /home/elrjtdon/public_html/DDI/RENE/auth.php:59
+Stack trace:
+#0 /home/elrjtdon/public_html/DDI/RENE/auth.php(59): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home/elrjtdon/public_html/DDI/RENE/auth.php on line 59
+[04-Aug-2026 05:15:54 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'elrjtdon_VitalCheck.users' doesn't exist in /home/elrjtdon/public_html/DDI/RENE/auth.php:42
+Stack trace:
+#0 /home/elrjtdon/public_html/DDI/RENE/auth.php(42): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home/elrjtdon/public_html/DDI/RENE/auth.php on line 42
+[04-Aug-2026 05:15:55 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'elrjtdon_VitalCheck.users' doesn't exist in /home/elrjtdon/public_html/DDI/RENE/auth.php:42
+Stack trace:
+#0 /home/elrjtdon/public_html/DDI/RENE/auth.php(42): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home/elrjtdon/public_html/DDI/RENE/auth.php on line 42
+[04-Aug-2026 05:19:56 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'elrjtdon_VitalCheck.users' doesn't exist in /home/elrjtdon/public_html/DDI/RENE/auth.php:42
+Stack trace:
+#0 /home/elrjtdon/public_html/DDI/RENE/auth.php(42): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home/elrjtdon/public_html/DDI/RENE/auth.php on line 42
+[04-Aug-2026 17:08:16 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'elrjtdon_VitalCheck.users' doesn't exist in /home/elrjtdon/public_html/DDI/RENE/auth.php:42
+Stack trace:
+#0 /home/elrjtdon/public_html/DDI/RENE/auth.php(42): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home/elrjtdon/public_html/DDI/RENE/auth.php on line 42
+[04-Aug-2026 17:08:17 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'elrjtdon_VitalCheck.users' doesn't exist in /home/elrjtdon/public_html/DDI/RENE/auth.php:42
+Stack trace:
+#0 /home/elrjtdon/public_html/DDI/RENE/auth.php(42): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home/elrjtdon/public_html/DDI/RENE/auth.php on line 42
+[04-Aug-2026 17:59:18 UTC] PHP Warning:  Undefined variable $db in /home/elrjtdon/public_html/DDI/RENE/glucosa.php on line 26
+[04-Aug-2026 17:59:18 UTC] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/elrjtdon/public_html/DDI/RENE/glucosa.php:26
+Stack trace:
+#0 {main}
+  thrown in /home/elrjtdon/public_html/DDI/RENE/glucosa.php on line 26
+[04-Aug-2026 18:47:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 13
+[04-Aug-2026 18:47:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 14
+[04-Aug-2026 18:47:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 15
+[04-Aug-2026 18:47:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 16
+[04-Aug-2026 18:48:15 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 13
+[04-Aug-2026 18:48:15 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 14
+[04-Aug-2026 18:48:15 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 15
+[04-Aug-2026 18:48:15 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 16
+[04-Aug-2026 18:48:17 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 13
+[04-Aug-2026 18:48:17 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 14
+[04-Aug-2026 18:48:17 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 15
+[04-Aug-2026 18:48:17 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 16
+[04-Aug-2026 18:48:17 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 13
+[04-Aug-2026 18:48:17 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 14
+[04-Aug-2026 18:48:17 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 15
+[04-Aug-2026 18:48:17 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 16
+[04-Aug-2026 18:48:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 13
+[04-Aug-2026 18:48:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 14
+[04-Aug-2026 18:48:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 15
+[04-Aug-2026 18:48:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 16
+[04-Aug-2026 18:48:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 13
+[04-Aug-2026 18:48:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 14
+[04-Aug-2026 18:48:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 15
+[04-Aug-2026 18:48:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 16
+[04-Aug-2026 18:48:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 13
+[04-Aug-2026 18:48:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 14
+[04-Aug-2026 18:48:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 15
+[04-Aug-2026 18:48:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 16
+[04-Aug-2026 18:48:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 13
+[04-Aug-2026 18:48:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 14
+[04-Aug-2026 18:48:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 15
+[04-Aug-2026 18:48:18 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/elrjtdon/public_html/DDI/RENE/data.php:6) in /home/elrjtdon/public_html/DDI/RENE/data.php on line 16
+[04-Aug-2026 19:12:48 UTC] PHP Parse error:  syntax error, unexpected token "echo", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 84
+[04-Aug-2026 19:12:49 UTC] PHP Parse error:  syntax error, unexpected token "echo", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 84
+[04-Aug-2026 19:12:50 UTC] PHP Parse error:  syntax error, unexpected token "echo", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 84
+[04-Aug-2026 19:12:52 UTC] PHP Parse error:  syntax error, unexpected token "echo", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 84
+[04-Aug-2026 19:16:53 UTC] PHP Fatal error:  Switch statements may only contain one default clause in /home/elrjtdon/public_html/DDI/RENE/data.php on line 234
+[04-Aug-2026 19:16:54 UTC] PHP Fatal error:  Switch statements may only contain one default clause in /home/elrjtdon/public_html/DDI/RENE/data.php on line 234
+[04-Aug-2026 19:16:54 UTC] PHP Fatal error:  Switch statements may only contain one default clause in /home/elrjtdon/public_html/DDI/RENE/data.php on line 234
+[04-Aug-2026 19:16:55 UTC] PHP Fatal error:  Switch statements may only contain one default clause in /home/elrjtdon/public_html/DDI/RENE/data.php on line 234
+[04-Aug-2026 19:16:55 UTC] PHP Fatal error:  Switch statements may only contain one default clause in /home/elrjtdon/public_html/DDI/RENE/data.php on line 234
+[04-Aug-2026 19:19:12 UTC] PHP Parse error:  syntax error, unexpected token "exit", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:12 UTC] PHP Parse error:  syntax error, unexpected token "exit", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:13 UTC] PHP Parse error:  syntax error, unexpected token "exit", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:13 UTC] PHP Parse error:  syntax error, unexpected token "exit", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:13 UTC] PHP Parse error:  syntax error, unexpected token "exit", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:13 UTC] PHP Parse error:  syntax error, unexpected token "exit", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:14 UTC] PHP Parse error:  syntax error, unexpected token "exit", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:14 UTC] PHP Parse error:  syntax error, unexpected token "exit", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:14 UTC] PHP Parse error:  syntax error, unexpected token "exit", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:14 UTC] PHP Parse error:  syntax error, unexpected token "exit", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:18 UTC] PHP Parse error:  syntax error, unexpected token "exit", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:19 UTC] PHP Parse error:  syntax error, unexpected token "exit", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:19 UTC] PHP Parse error:  syntax error, unexpected token "exit", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:20 UTC] PHP Parse error:  syntax error, unexpected token "exit", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:20 UTC] PHP Parse error:  syntax error, unexpected token "exit", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:34 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:35 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:35 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:35 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:36 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:39 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:40 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:41 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:41 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:41 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:41 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:41 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:42 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:42 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:42 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:42 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:42 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:42 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:42 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:43 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:43 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:44 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 19:19:46 UTC] PHP Parse error:  syntax error, unexpected variable "$q", expecting "case" or "default" or "}" in /home/elrjtdon/public_html/DDI/RENE/data.php on line 80
+[04-Aug-2026 20:10:19 UTC] PHP Warning:  require_once(/home/elrjtdon/public_html/DDI/RENE/../conector.php): Failed to open stream: No such file or directory in /home/elrjtdon/public_html/DDI/RENE/data.php on line 21
+[04-Aug-2026 20:10:19 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/elrjtdon/public_html/DDI/RENE/../conector.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home/elrjtdon/public_html/DDI/RENE/data.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/elrjtdon/public_html/DDI/RENE/data.php on line 21
+[04-Aug-2026 20:15:47 UTC] PHP Warning:  require_once(/home/elrjtdon/public_html/DDI/RENE/../conector.php): Failed to open stream: No such file or directory in /home/elrjtdon/public_html/DDI/RENE/data.php on line 21
+[04-Aug-2026 20:15:47 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/elrjtdon/public_html/DDI/RENE/../conector.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home/elrjtdon/public_html/DDI/RENE/data.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/elrjtdon/public_html/DDI/RENE/data.php on line 21
+[04-Aug-2026 20:16:28 UTC] PHP Warning:  require_once(/home/elrjtdon/public_html/DDI/RENE/../conector.php): Failed to open stream: No such file or directory in /home/elrjtdon/public_html/DDI/RENE/data.php on line 21
+[04-Aug-2026 20:16:28 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/elrjtdon/public_html/DDI/RENE/../conector.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home/elrjtdon/public_html/DDI/RENE/data.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/elrjtdon/public_html/DDI/RENE/data.php on line 21
+[05-Aug-2026 18:16:32 UTC] PHP Fatal error:  Uncaught Error: Class "Firebase\JWT\JWT" not found in /home/elrjtdon/public_html/DDI/RENE/jwtUtils.php:48
+Stack trace:
+#0 /home/elrjtdon/public_html/DDI/RENE/usuarios.php(255): generarJWT(Array)
+#1 {main}
+  thrown in /home/elrjtdon/public_html/DDI/RENE/jwtUtils.php on line 48
+[05-Aug-2026 18:16:34 UTC] PHP Fatal error:  Uncaught Error: Class "Firebase\JWT\JWT" not found in /home/elrjtdon/public_html/DDI/RENE/jwtUtils.php:48
+Stack trace:
+#0 /home/elrjtdon/public_html/DDI/RENE/usuarios.php(255): generarJWT(Array)
+#1 {main}
+  thrown in /home/elrjtdon/public_html/DDI/RENE/jwtUtils.php on line 48
+[05-Aug-2026 18:17:07 UTC] PHP Fatal error:  Uncaught Error: Class "Firebase\JWT\JWT" not found in /home/elrjtdon/public_html/DDI/RENE/jwtUtils.php:48
+Stack trace:
+#0 /home/elrjtdon/public_html/DDI/RENE/usuarios.php(255): generarJWT(Array)
+#1 {main}
+  thrown in /home/elrjtdon/public_html/DDI/RENE/jwtUtils.php on line 48
+[05-Aug-2026 18:17:08 UTC] PHP Fatal error:  Uncaught Error: Class "Firebase\JWT\JWT" not found in /home/elrjtdon/public_html/DDI/RENE/jwtUtils.php:48
+Stack trace:
+#0 /home/elrjtdon/public_html/DDI/RENE/usuarios.php(255): generarJWT(Array)
+#1 {main}
+  thrown in /home/elrjtdon/public_html/DDI/RENE/jwtUtils.php on line 48
