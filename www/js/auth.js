@@ -3,7 +3,7 @@ var API_ROOT = 'https://elrjtd.online/DDI/RENE';
 window.API_ROOT = API_ROOT;
 
 function getAppToken() {
-    return localStorage.getItem('vital_token');
+    return localStorage.getItem('jwt');
 }
 
 function getCurrentUser() {
@@ -23,9 +23,9 @@ function getCurrentUserId() {
 
 function setAppToken(token) {
     if (token) {
-        localStorage.setItem('vital_token', token);
+        localStorage.setItem('jwt', token);
     } else {
-        localStorage.removeItem('vital_token');
+        localStorage.removeItem('jwt');
     }
 }
 
@@ -38,7 +38,7 @@ function setCurrentUser(user) {
 }
 
 function clearAppToken() {
-    localStorage.removeItem('vital_token');
+    localStorage.removeItem('jwt');
     localStorage.removeItem('vital_user');
 }
 
@@ -66,31 +66,20 @@ function hasUserIdParam(path) {
 
 async function backendFetch(path, options = {}) {
     options.headers = options.headers || {};
-    options.headers['Content-Type'] = 'application/json';
+    if (!options.headers['Content-Type'] && !options.headers['content-type']) {
+        options.headers['Content-Type'] = 'application/json';
+    }
+
+    const token = getAppToken();
+    if (token) {
+        options.headers['Authorization'] = `Bearer ${token}`;
+    }
 
     const method = (options.method || 'GET').toUpperCase();
     const userId = getCurrentUserId();
-    const localApi = !/^https?:\/\//i.test(path) && needsLocalUserId(path);
 
-    if (localApi && userId) {
-        if (method === 'GET') {
-            if (!hasUserIdParam(path)) {
-                path += path.includes('?') ? `&user_id=${userId}` : `?user_id=${userId}`;
-            }
-        } else {
-            let body = {};
-            if (options.body) {
-                try {
-                    body = JSON.parse(options.body);
-                } catch {
-                    body = {};
-                }
-            }
-            if (typeof body === 'object' && body !== null) {
-                body.user_id = userId;
-                options.body = JSON.stringify(body);
-            }
-        }
+    if (!/^https?:\/\//i.test(path) && userId) {
+        // Keep current user context if needed elsewhere, but JWT is the primary auth mechanism.
     }
 
     let requestUrl;

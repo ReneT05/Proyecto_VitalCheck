@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await backendFetch('api/usuarios.php', {
+            const response = await backendFetch('usuarios.php', {
                 method: 'POST',
                 body: JSON.stringify(payload)
             });

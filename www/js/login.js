@@ -121,8 +121,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // GUARDAR SESIÓN
 
-            setAppToken(result.token);
+            const token = result.jwt;
+            if (!token) {
+                errorMessage.textContent =
+                    "JWT no recibido del servidor.";
+                return;
+            }
 
+            setAppToken(token);
             setCurrentUser(result.usuario);
 
 

@@ -57,7 +57,6 @@ $method = $_SERVER['REQUEST_METHOD'];
 $id = isset($_GET['id']) ? intval($_GET['id']) : null;
 $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
 
-// Determine user ID without JWT: accept `user_id` in query or request body
 $userId = null;
 if (isset($_GET['user_id'])) {
     $userId = intval($_GET['user_id']);

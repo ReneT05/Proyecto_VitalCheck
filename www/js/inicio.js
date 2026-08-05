@@ -1,5 +1,5 @@
 ﻿async function fetchLatestRecords() {
-    const response = await backendFetch('api/data.php?limit=3&offset=0');
+    const response = await backendFetch('data.php?limit=3&offset=0');
     if (!response) return [];
     const result = await response.json();
     if (!result.success) return [];

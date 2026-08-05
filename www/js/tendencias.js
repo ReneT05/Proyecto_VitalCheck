@@ -146,7 +146,7 @@
     }
 
     async function fetchRecords() {
-        const response = await backendFetch('api/data.php?limit=100&offset=0');
+        const response = await backendFetch('data.php?limit=100&offset=0');
         if (!response) return [];
         const result = await response.json();
         if (!result.success) {

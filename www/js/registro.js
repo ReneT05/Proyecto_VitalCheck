@@ -42,7 +42,7 @@ function setActiveType(type) {
 }
 
 async function fetchRecentRecords(limit = 2) {
-    const response = await backendFetch(`api/data.php?limit=${limit}&offset=0`);
+    const response = await backendFetch(`data.php?limit=${limit}&offset=0`);
     if (!response) return [];
     const result = await response.json();
     if (!result.success) return [];
@@ -82,7 +82,7 @@ async function handleSubmit(event) {
 
         updateStatusBanner(evaluateGlucose(value, meal));
 
-        const response = await backendFetch('api/data.php', {
+        const response = await backendFetch('data.php', {
             method: 'POST',
             body: JSON.stringify({ title: 'Azúcar', metric: meal, value: Number(value) })
         });
@@ -108,7 +108,7 @@ async function handleSubmit(event) {
 
     updateStatusBanner(evaluatePressure(systolic, diastolic));
 
-    const response = await backendFetch('api/data.php', {
+    const response = await backendFetch('data.php', {
         method: 'POST',
         body: JSON.stringify({ title: 'Presión', metric: `${systolic}/${diastolic}`, value: Number(pulse) })
     });

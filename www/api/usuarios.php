@@ -260,9 +260,11 @@ try {
                         "usuario" => $user['usuario']
                     ]
                 ]);
+                exit;
+            }
 
-
-                    $stmt = $db->prepare(
+            if ($pin != "") {
+                $stmt = $db->prepare(
                         "SELECT * FROM usuarios
              WHERE pin=:pin
              LIMIT 1"
@@ -302,21 +304,13 @@ try {
 
 
                     echo json_encode([
-
                         "success" => true,
-
                         "token" => "vital-" . time(),
-
                         "usuario" => [
-
                             "id_usuario" => $user['id_usuario'],
-
                             "nombre" => $user['nombre'],
-
                             "usuario" => $user['usuario']
-
                         ]
-
                     ]);
 
 
@@ -329,13 +323,9 @@ try {
 
 
                 echo json_encode([
-
                     "success" => false,
-
                     "error" => "Faltan datos de login"
-
                 ]);
-
 
                 exit;
 
