@@ -73,6 +73,9 @@ async function backendFetch(path, options = {}) {
     const token = getAppToken();
     if (token) {
         options.headers['Authorization'] = `Bearer ${token}`;
+
+        console.log("JWT enviado:", getAppToken());
+        console.log("Headers:", options.headers);
     }
 
     const method = (options.method || 'GET').toUpperCase();
@@ -98,30 +101,60 @@ async function backendFetch(path, options = {}) {
     return fetch(requestUrl, options);
 }
 
-async function guardarFirebaseToken(idUsuario) {
+async function guardarFirebaseToken() {
 
-    document.addEventListener("deviceready", function () {
+    if (typeof FirebasexMessaging === "undefined") {
+        console.error("FirebasexMessaging no está disponible");
+        return;
+    }
 
-        FirebasePlugin.getToken(async function (token) {
+    FirebasexMessaging.getToken(
 
-            console.log(token);
+        async function (token) {
 
-            await backendFetch(
-                `usuarios.php?id=${idUsuario}`,
-                {
-                    method: "PUT",
-                    body: JSON.stringify({
-                        firebase_token: token
-                    })
-                }
+            console.log("TOKEN FIREBASE:", token);
+
+            if (!token) {
+                console.error("Firebase no devolvió un token");
+                return;
+            }
+
+            try {
+
+                const response = await backendFetch(
+                    "firebase/update_token.php",
+                    {
+                        method: "POST",
+                        body: JSON.stringify({
+                            firebase_token: token
+                        })
+                    }
+                );
+
+                const texto = await response.text();
+
+                console.log("STATUS UPDATE TOKEN:", response.status);
+                console.log("RESPUESTA UPDATE TOKEN:", texto);
+
+            } catch (error) {
+
+                console.error(
+                    "ERROR ENVIANDO TOKEN:",
+                    error
+                );
+
+            }
+
+        },
+
+        function (error) {
+
+            console.error(
+                "ERROR OBTENIENDO TOKEN FIREBASE:",
+                error
             );
 
-        }, function (err) {
+        }
 
-            console.log(err);
-
-        });
-
-    });
-
+    );
 }

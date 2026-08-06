@@ -68,3 +68,67 @@ document.addEventListener('deviceready', async () => {
         await initHome();
     }
 });
+
+document.addEventListener("deviceready", function () {
+
+    console.log("Cordova listo en inicio");
+
+    if (!requireLogin()) {
+        return;
+    }
+
+    guardarFirebaseToken();
+
+    if (typeof FirebasexMessaging === "undefined") {
+        console.error("FirebasexMessaging no está disponible");
+        return;
+    }
+
+    FirebasexMessaging.onTokenRefresh(
+
+        async function (token) {
+
+            console.log("TOKEN FIREBASE RENOVADO:", token);
+
+            try {
+
+                const response = await backendFetch(
+                    "firebase/update_token.php",
+                    {
+                        method: "POST",
+                        body: JSON.stringify({
+                            firebase_token: token
+                        })
+                    }
+                );
+
+                const texto = await response.text();
+
+                console.log(
+                    "RESPUESTA TOKEN RENOVADO:",
+                    texto
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "ERROR GUARDANDO TOKEN RENOVADO:",
+                    error
+                );
+
+            }
+
+        },
+
+        function (error) {
+
+            console.error(
+                "ERROR EN onTokenRefresh:",
+                error
+            );
+
+        }
+
+    );
+
+});
