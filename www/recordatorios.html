@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>VitalCheck - Recordatorios</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/recordatorios.css">
+</head>
+
+<body>
+    <main class="page-shell app-layout" id="appShell">
+        <section class="content">
+            <header class="page-header compact">
+                <a class="back-link" href="inicio.html"><i class="fas fa-arrow-left"></i> Inicio</a>
+                <div>
+                    <span class="brand-pill secondary">Recordatorios</span>
+                    <h1>Configura tus recordatorios</h1>
+                    <p>Define los horarios para no olvidar registrar tus mediciones y mantener tus datos al día.</p>
+                </div>
+            </header>
+
+            <section class="form-card">
+                <div class="status-banner green">
+                    <div>
+                        <strong>Recordatorios activos</strong>
+                        <p>Elige los horarios ideales para recibir alertas claras y oportunas.</p>
+                    </div>
+                    <div class="status-icon"><i class="fas fa-bell"></i></div>
+                </div>
+
+                <form id="recordatoriosForm">
+                    <section class="reminder-card">
+                        <div class="card-title">
+                            <i class="fa-solid fa-droplet"></i>
+                            <div>
+                                <h2>Azúcar</h2>
+                                <p>Recordatorios de glucosa</p>
+                            </div>
+                        </div>
+
+                        <div class="time-field">
+                            <label for="azucarManana">Mañana</label>
+                            <input type="time" id="azucarManana" value="07:00" required>
+                        </div>
+
+                        <div class="time-field">
+                            <label for="azucarNoche">Noche</label>
+                            <input type="time" id="azucarNoche" value="21:00" required>
+                        </div>
+                    </section>
+
+                    <section class="reminder-card">
+                        <div class="card-title">
+                            <i class="fa-solid fa-heart-pulse"></i>
+                            <div>
+                                <h2>Presión arterial</h2>
+                                <p>Recordatorios de presión</p>
+                            </div>
+                        </div>
+
+                        <div class="time-field">
+                            <label for="presionManana">Mañana</label>
+                            <input type="time" id="presionManana" value="08:00" required>
+                        </div>
+
+                        <div class="time-field">
+                            <label for="presionTarde">Tarde</label>
+                            <input type="time" id="presionTarde" value="15:00" required>
+                        </div>
+
+                        <div class="time-field">
+                            <label for="presionNoche">Noche</label>
+                            <input type="time" id="presionNoche" value="20:00" required>
+                        </div>
+                    </section>
+
+                    <button type="submit" id="saveButton">
+                        <i class="fa-solid fa-bell"></i>
+                        Guardar horarios
+                    </button>
+
+                    <p id="mensajeRecordatorios" class="form-message"></p>
+                </form>
+            </section>
+        </section>
+    </main>
+
+    <script src="cordova.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/recordatorios.js"></script>
+</body>
+
+</html>

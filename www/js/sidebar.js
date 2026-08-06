@@ -14,6 +14,7 @@ function createSidebar(activePage) {
             <a class="sidebar-link ${activePage === 'inicio' ? 'active' : ''}" href="inicio.html"><i class="fas fa-home"></i>Inicio</a>
             <a class="sidebar-link ${activePage === 'perfil' ? 'active' : ''}" href="usuarios.html?edit=1"><i class="fas fa-user-cog"></i>Mi cuenta</a>
             <a class="sidebar-link ${activePage === 'registro' ? 'active' : ''}" href="registro.html"><i class="fas fa-notes-medical"></i>Registrar valor</a>
+            <a class="sidebar-link ${activePage === 'recordatorios' ? 'active' : ''}" href="recordatorios.html"><i class="fas fa-bell"></i>Recordatorios</a>
             <a class="sidebar-link ${activePage === 'historial' ? 'active' : ''}" href="historial.html"><i class="fas fa-history"></i>Historial</a>
             <a class="sidebar-link ${activePage === 'tendencias' ? 'active' : ''}" href="tendencias.html"><i class="fas fa-chart-line"></i>Tendencias</a>
             <a class="sidebar-link ${activePage === 'usuarios' ? 'active' : ''}" href="usuarios.html"><i class="fas fa-user-plus"></i>Crear usuario</a>
@@ -70,6 +71,7 @@ function getActivePageFromPath() {
     if (path.includes('historial.html')) return 'historial';
     if (path.includes('tendencias.html')) return 'tendencias';
     if (path.includes('registro.html')) return 'registro';
+    if (path.includes('recordatorios.html')) return 'recordatorios';
     if (path.includes('usuarios.html')) {
         if (query.get('edit') === '1' || query.get('edit') === 'true') {
             return 'perfil';
