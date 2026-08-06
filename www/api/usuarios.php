@@ -4,15 +4,23 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+
+// ===== CORS PRIMERO =====
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Content-Type: application/json; charset=utf-8");
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
+
+// ===== DESPUÃ‰S CARGAR ARCHIVOS =====
 require_once '../../vendor/autoload.php';
 require_once __DIR__ . '/conector.php';
 require_once __DIR__ . '/jwtUtils.php';
-
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
@@ -180,6 +188,54 @@ try {
 
 
             // ===============================
+// VERIFICAR TOKEN
+// ===============================
+
+            if (isset($input['accion']) && $input['accion'] == "verificarToken") {
+
+                $token = trim($input['token'] ?? '');
+                $userId = intval($input['id_usuario'] ?? 0);
+
+                if (!$token || !$userId) {
+                    http_response_code(400);
+                    echo json_encode([
+                        "success" => false,
+                        "error" => "Token o ID de usuario requerido"
+                    ]);
+                    exit;
+                }
+
+                $stmt = $db->prepare(
+                    "SELECT id_usuario, firebase_token FROM usuarios WHERE id_usuario=:id_usuario LIMIT 1"
+                );
+
+                $stmt->execute([
+                    ":id_usuario" => $userId
+                ]);
+
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$user || $user['firebase_token'] !== $token) {
+                    http_response_code(401);
+                    echo json_encode([
+                        "success" => false,
+                        "error" => "Token invÃ¡lido o expirado",
+                        "tokenValid" => false
+                    ]);
+                    exit;
+                }
+
+                echo json_encode([
+                    "success" => true,
+                    "tokenValid" => true,
+                    "message" => "Token vÃ¡lido"
+                ]);
+                exit;
+            }
+
+
+
+            // ===============================
 // LOGIN
 // ===============================
 
@@ -230,7 +286,7 @@ try {
                         http_response_code(401);
                          echo json_encode([
                             "success" => false,
-                            "error" => "Contrase«Ða incorrecta"
+                            "error" => "Contrasena incorrecta"
                         ]);
                     exit;
                     }
@@ -308,8 +364,6 @@ try {
                             "usuario" => $user['usuario']
                         ]
                     ]);
-
-
 
                     exit;
 
@@ -419,12 +473,12 @@ try {
                     (nombre,apellido,usuario,correo,contrasena,pin,
                     fecha_nacimiento,sexo,telefono,firebase_token)
 
-                VALUES
-                    (:nombre,:apellido,:usuario,:correo,:contrasena,
-                    :pin,:fecha,:sexo,:telefono,:firebase_token)
-            );
 
+VALUES
 
+(:nombre,:apellido,:usuario,:correo,:contrasena,
+:pin,:fecha,:sexo,:telefono,:firebase_token)"
+);
 
             $stmt->execute([
 
@@ -480,7 +534,11 @@ try {
 
                 echo json_encode([
                     "success" => false,
-                    "error" => "ID requerido"
+                    "error" => "ID requerido",
+                    "debug" => [
+                        "id" => $id,
+                        "input" => $input
+                    ]
                 ]);
 
                 exit;
@@ -529,7 +587,12 @@ try {
 
                     "success" => false,
 
-                    "error" => "Nada que actualizar"
+                    "error" => "Nada que actualizar",
+                    "debug" => [
+                        "id" => $id,
+                        "input" => $input,
+                        "campos" => $campos
+                    ]
 
                 ]);
 
@@ -550,8 +613,7 @@ try {
 
 
             $stmt = $db->prepare($sql);
-
-            $stmt->execute($params);
+            $success = $stmt->execute($params);
 
 
 
@@ -559,7 +621,12 @@ try {
 
                 "success" => true,
 
-                "message" => "Usuario actualizado"
+                "message" => "Usuario actualizado",
+                "debug" => [
+                    "sql" => $sql,
+                    "params" => $params,
+                    "execute_result" => $success
+                ]
 
             ]);
 

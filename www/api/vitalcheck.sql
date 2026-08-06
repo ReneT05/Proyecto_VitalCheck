@@ -20,6 +20,7 @@ CREATE TABLE usuarios (
     fecha_nacimiento DATE,
     sexo ENUM('Masculino','Femenino','Otro'),
     telefono VARCHAR(15),
+    firebase_token LONGTEXT,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

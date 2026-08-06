@@ -97,3 +97,31 @@ async function backendFetch(path, options = {}) {
 
     return fetch(requestUrl, options);
 }
+
+async function guardarFirebaseToken(idUsuario) {
+
+    document.addEventListener("deviceready", function () {
+
+        FirebasePlugin.getToken(async function (token) {
+
+            console.log(token);
+
+            await backendFetch(
+                `usuarios.php?id=${idUsuario}`,
+                {
+                    method: "PUT",
+                    body: JSON.stringify({
+                        firebase_token: token
+                    })
+                }
+            );
+
+        }, function (err) {
+
+            console.log(err);
+
+        });
+
+    });
+
+}

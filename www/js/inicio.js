@@ -28,7 +28,7 @@ function renderHome(records) {
                 <div class="icon-box ${record.title === 'Azúcar' ? 'sugar' : 'pressure'}"><i class="fas ${record.title === 'Azúcar' ? 'fa-droplet' : 'fa-heart-pulse'}"></i></div>
                 <div>
                     <strong>${record.title === 'Azúcar' ? `${record.value} mg/dL` : `${record.metric} mmHg`}</strong>
-                    <small>${new Date(record.created_at).toLocaleDateString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</small>
+                    <small>${new Date(record.created_at).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</small>
                 </div>
             `;
             list.appendChild(item);
